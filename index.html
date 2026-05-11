@@ -13,7 +13,7 @@
     <style>
         :root { 
             --neon-cyan: #00ffff; --neon-pink: #ff00ff; 
-            --glass: rgba(0, 0, 0, 0.9); --bg: #000;
+            --glass: rgba(0, 0, 0, 0.8); --bg: #000;
         }
 
         html, body { 
@@ -24,7 +24,20 @@
 
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
-        /* Full-Screen UI Overlays */
+        /* Search Bar UI */
+        #search-container {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; z-index: 5000; display: none;
+        }
+        .search-bar {
+            width: 100%; padding: 15px 25px; border-radius: 30px;
+            background: var(--glass); backdrop-filter: blur(20px);
+            border: 1px solid var(--neon-cyan); color: #fff;
+            box-shadow: 0 0 20px rgba(0,255,255,0.2); font-size: 1rem;
+            outline: none; box-sizing: border-box;
+        }
+
+        /* UI Overlays */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); backdrop-filter: blur(40px);
@@ -44,29 +57,39 @@
             box-shadow: 0 0 25px var(--neon-cyan); cursor: pointer; margin-top: 15px;
         }
 
-        /* Category Grid (Expanded) */
+        /* Tag Cloud (Lifestyle Markers) */
+        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+        .id-tag {
+            padding: 10px 18px; border-radius: 25px; background: rgba(255,255,255,0.05);
+            font-size: 0.8rem; font-weight: 800; border: 1px solid #333; cursor: pointer; transition: 0.3s;
+        }
+        .id-tag.active { background: var(--neon-pink); border-color: #fff; box-shadow: 0 0 15px var(--neon-pink); }
+
+        /* Vibe Cards */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
         .card {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; border-radius: 25px; text-align: center; cursor: pointer; transition: 0.2s;
+            padding: 15px; border-radius: 25px; cursor: pointer;
         }
-        .card.selected { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); }
-        .card span { display: block; font-size: 1.2rem; margin-bottom: 5px; }
-        .card h3 { margin: 0; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
+        .card.selected { background: var(--neon-cyan); color: #000; }
+        .card span { display: block; font-size: 1.2rem; }
 
-        /* Tag Cloud Styling (AI ID Tags) */
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
-        .id-tag {
-            padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.1);
-            font-size: 0.75rem; font-weight: bold; border: 1px solid transparent; cursor: pointer;
+        /* Faith AI Animation */
+        .ai-status-text { font-family: monospace; font-size: 0.8rem; color: var(--neon-cyan); margin-top: 20px; }
+
+        /* Profile Card */
+        #profile-card {
+            position: fixed; bottom: -100%; left: 0; right: 0;
+            background: var(--glass); backdrop-filter: blur(40px);
+            border-top: 2px solid var(--neon-cyan); border-radius: 40px 40px 0 0;
+            padding: 40px; z-index: 20000; text-align: center;
+            transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .id-tag.active { background: var(--neon-pink); border-color: #fff; text-shadow: 0 0 5px #fff; }
+        #profile-card.active { bottom: 0; }
+        .my-tag-display { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 15px 0; }
+        .tiny-tag { font-size: 0.6rem; padding: 4px 10px; border-radius: 10px; background: var(--neon-pink); font-weight: 900; }
 
-        /* Faith AI Scanning Animation */
-        .ai-scanner { width: 100%; height: 4px; background: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan); position: relative; animation: scan 2s infinite ease-in-out; }
-        @keyframes scan { 0% { top: -20px; } 50% { top: 120px; } 100% { top: -20px; } }
-
-        /* Nodes */
+        /* Radar Nodes */
         .user-dot {
             width: 26px; height: 26px; background: #fff; border: 4px solid var(--neon-cyan);
             border-radius: 50%; box-shadow: 0 0 25px var(--neon-cyan); position: relative;
@@ -77,47 +100,27 @@
             animation: radar-pulse 2s infinite; opacity: 0;
         }
         @keyframes radar-pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(3.5); opacity: 0; } }
-        
-        #profile-card {
-            position: fixed; bottom: -100%; left: 0; right: 0;
-            background: var(--glass); backdrop-filter: blur(40px);
-            border-top: 2px solid var(--neon-cyan); border-radius: 40px 40px 0 0;
-            padding: 40px; z-index: 20000; text-align: center;
-            transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #profile-card.active { bottom: 0; }
+
+        .business-icon { font-size: 1.5rem; color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="tos-step" class="overlay">
-        <div class="glass-card">
-            <h1 class="neon-title" style="color: var(--neon-pink);">F.A.I.T.H.</h1>
-            <p style="color: #888; font-size: 0.8rem;">Faubel Asset & Innovation Tech Holdings.</p>
-            <button class="primary-btn" style="background: var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
-        </div>
-    </div>
+    <div id="search-container"><input type="text" class="search-bar" placeholder="SEARCH INTENT (e.g. Pizza, Coffee, Tech)"></div>
 
-    <div id="auth-step" class="overlay" style="display:none;">
-        <div class="glass-card">
-            <h2 class="neon-title">ACCESS</h2>
-            <input type="email" id="email" placeholder="Email" style="width:100%; padding:15px; border-radius:15px; background:#111; border:1px solid #333; color:#fff; margin-bottom:10px;">
-            <input type="password" id="password" placeholder="Password" style="width:100%; padding:15px; border-radius:15px; background:#111; border:1px solid #333; color:#fff; margin-bottom:15px;">
-            <button class="primary-btn" onclick="handleAuth()">ENTER GATEWAY</button>
-        </div>
-    </div>
+    <div id="tos-step" class="overlay"><div class="glass-card"><h1 class="neon-title">F.A.I.T.H.</h1><p style="color: #666; font-size: 0.7rem;">ESTABLISHING CONNECTION...</p><button class="primary-btn" style="background: var(--neon-pink);" onclick="nextStep('tos-step', 'tag-step')">CONSENT</button></div></div>
 
     <div id="tag-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">AI ID TAGS</h2>
-            <p style="color:#666; font-size:0.7rem;">SELECT YOUR IDENTITY MARKERS</p>
+            <h2 class="neon-title">IDENTITY</h2>
             <div class="tag-container">
-                <div class="id-tag" onclick="toggleTag(this)">FOUNDER</div>
+                <div class="id-tag" onclick="toggleTag(this)">GAMING</div>
+                <div class="id-tag" onclick="toggleTag(this)">ANIME</div>
+                <div class="id-tag" onclick="toggleTag(this)">FITNESS</div>
+                <div class="id-tag" onclick="toggleTag(this)">BUSINESS</div>
+                <div class="id-tag" onclick="toggleTag(this)">POLITICS</div>
                 <div class="id-tag" onclick="toggleTag(this)">CREATIVE</div>
                 <div class="id-tag" onclick="toggleTag(this)">TECH</div>
-                <div class="id-tag" onclick="toggleTag(this)">SOCIALITE</div>
-                <div class="id-tag" onclick="toggleTag(this)">INVESTOR</div>
-                <div class="id-tag" onclick="toggleTag(this)">RECRUITER</div>
             </div>
             <button class="primary-btn" onclick="nextStep('tag-step', 'vibe-step')">SET IDENTITY</button>
         </div>
@@ -125,38 +128,30 @@
 
     <div id="vibe-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">SELECT VIBE</h2>
+            <h2 class="neon-title">VIBE</h2>
             <div class="grid">
                 <div class="card" onclick="selectVibe(this, 'Business')"><span>💼</span><h3>BUSINESS</h3></div>
-                <div class="card" onclick="selectVibe(this, 'Clubbing')"><span>✨</span><h3>CLUBBING</h3></div>
-                <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANTIC</h3></div>
-                <div class="card" onclick="selectVibe(this, 'Platonic')"><span>🤝</span><h3>PLATONIC</h3></div>
                 <div class="card" onclick="selectVibe(this, 'Social')"><span>🍹</span><h3>SOCIAL</h3></div>
                 <div class="card" onclick="selectVibe(this, 'The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANCE</h3></div>
             </div>
-            <button class="primary-btn" style="margin-top:20px;" onclick="nextStep('vibe-step', 'faith-ai-step'); runFaithAI();">NEXT</button>
+            <button class="primary-btn" onclick="runFaithAI()">CALIBRATE</button>
         </div>
     </div>
 
     <div id="faith-ai-step" class="overlay" style="display:none;">
-        <div class="glass-card" style="position:relative; overflow:hidden;">
+        <div class="glass-card">
             <h2 class="neon-title">FAITH AI</h2>
-            <div class="ai-scanner"></div>
-            <p id="ai-status" style="font-family:monospace; font-size:0.8rem; color:var(--neon-cyan); margin-top:40px;">CALIBRATING FREQUENCY...</p>
+            <div style="width: 100%; height: 2px; background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan);"></div>
+            <p id="ai-status" class="ai-status-text">INITIALIZING RADAR...</p>
         </div>
     </div>
 
-    <div id="bio-step" class="overlay" style="display:none;">
-        <div class="glass-card">
-            <h2 class="neon-title">FINAL INTENT</h2>
-            <textarea id="bio" placeholder="Faith AI optimized: Waiting for your input..." style="width:100%; height:100px; border-radius:20px; background:#111; border:1px solid #333; color:#fff; padding:15px;"></textarea>
-            <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
-        </div>
-    </div>
+    <div id="bio-step" class="overlay" style="display:none;"><div class="glass-card"><h2 class="neon-title">INTENT</h2><textarea id="bio" placeholder="What's the move?" class="auth-input" style="height:100px;"></textarea><button class="primary-btn" onclick="finalizeProfile()">LAUNCH</button></div></div>
 
     <div id="profile-card">
         <h2 id="card-name" style="color: var(--neon-cyan); margin:0;">Alpha Node</h2>
-        <div id="card-tags" style="display:flex; justify-content:center; gap:5px; margin:10px 0;"></div>
+        <div id="card-tags" class="my-tag-display"></div>
         <p id="card-bio" style="color: #ccc; margin-bottom: 25px;"></p>
         <button class="primary-btn" style="background:#fff; color:#000;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
     </div>
@@ -169,7 +164,7 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let selectedVibe = '';
-        let selectedTags = [];
+        let myTags = [];
 
         function nextStep(current, next) {
             document.getElementById(current).style.display = 'none';
@@ -179,47 +174,30 @@
         function toggleTag(el) {
             el.classList.toggle('active');
             const tag = el.innerText;
-            if (selectedTags.includes(tag)) selectedTags = selectedTags.filter(t => t !== tag);
-            else selectedTags.push(tag);
+            if (myTags.includes(tag)) myTags = myTags.filter(t => t !== tag);
+            else myTags.push(tag);
         }
 
-        function selectVibe(el, vibe) {
+        function selectVibe(el, v) {
             document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedVibe = vibe;
-        }
-
-        async function handleAuth() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            await _supabase.auth.signUp({ email, password });
-            await _supabase.auth.signInWithPassword({ email, password });
-            nextStep('auth-step', 'tag-step');
+            el.classList.add('selected'); selectedVibe = v;
         }
 
         function runFaithAI() {
+            nextStep('vibe-step', 'faith-ai-step');
             const status = document.getElementById('ai-status');
-            const phases = ["ANALYZING IDENTITY...", "FILTERING INTENT...", "SECURE CONNECTION ESTABLISHED.", "READY."];
+            const log = ["SCANNING SPATIAL DATA...", "LOCATING GEOFENCES...", "IDENTITY SYNC COMPLETE."];
             let i = 0;
             const interval = setInterval(() => {
-                status.innerText = phases[i];
-                i++;
-                if (i === phases.length) {
-                    clearInterval(interval);
-                    setTimeout(() => nextStep('faith-ai-step', 'bio-step'), 1000);
-                }
+                status.innerText = log[i]; i++;
+                if (i === log.length) { clearInterval(interval); setTimeout(() => nextStep('faith-ai-step', 'bio-step'), 1000); }
             }, 800);
         }
 
         async function finalizeProfile() {
             const bioText = document.getElementById('bio').value;
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (user) { 
-                await _supabase.from('profiles').upsert({ 
-                    id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText, tags: selectedTags 
-                }); 
-            }
             document.getElementById('bio-step').style.display = 'none';
+            document.getElementById('search-container').style.display = 'block';
             initRadar(bioText);
         }
 
@@ -229,20 +207,37 @@
                 const userLoc = [pos.coords.longitude, pos.coords.latitude];
                 const map = new mapboxgl.Map({
                     container: 'map', style: 'mapbox://styles/mapbox/dark-v11',
-                    center: userLoc, zoom: 17, pitch: 60
+                    center: userLoc, zoom: 16, pitch: 60
+                });
+
+                // Visual Geofence Layer
+                map.on('load', () => {
+                    map.addLayer({
+                        'id': 'geofence-zone', 'type': 'circle', 'source': { 'type': 'geojson', 'data': { 'type': 'Point', 'coordinates': userLoc } },
+                        'paint': { 'circle-radius': 100, 'circle-color': 'var(--neon-cyan)', 'circle-opacity': 0.1, 'circle-stroke-width': 2, 'circle-stroke-color': 'var(--neon-cyan)' }
+                    });
                 });
 
                 const el = document.createElement('div'); el.className = 'user-dot';
                 el.onclick = () => {
-                    document.getElementById('card-name').innerText = "Alpha Founder";
                     document.getElementById('card-bio').innerText = bio;
-                    const tagHtml = selectedTags.map(t => `<span style="font-size:0.6rem; padding:3px 8px; border-radius:10px; background:var(--neon-pink);">${t}</span>`).join('');
-                    document.getElementById('card-tags').innerHTML = tagHtml;
+                    document.getElementById('card-tags').innerHTML = myTags.map(t => `<div class="tiny-tag">${t}</div>`).join('');
                     document.getElementById('profile-card').classList.add('active');
                 };
                 new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
 
-            }, () => { alert("Enable GPS!"); }, { enableHighAccuracy: true });
+                // Demo Neighbors
+                addDemo(map, userLoc[0] + 0.001, userLoc[1] + 0.001, "Coffee Shop", "fas fa-coffee");
+                addDemo(map, userLoc[0] - 0.001, userLoc[1] - 0.001, "Fitness Center", "fas fa-dumbbell");
+
+            }, () => { alert("GPS REQ"); }, { enableHighAccuracy: true });
+        }
+
+        function addDemo(map, lng, lat, name, icon) {
+            const el = document.createElement('div'); el.className = 'business-icon';
+            el.innerHTML = `<i class="${icon}"></i>`;
+            el.onclick = () => { alert(name + " Geofence Active"); };
+            new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
         }
     </script>
 </body>
