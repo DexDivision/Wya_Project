@@ -26,7 +26,7 @@
         
         .screen { 
             height: 100%; width: 100%; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 40px 20px; 
+            align-items: center; justify-content: space-between; padding: 60px 20px; 
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
             position: absolute; top: 0; left: 0; background: #000;
         }
@@ -39,7 +39,7 @@
         .logo { font-size: 4rem; font-weight: 900; letter-spacing: 10px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
         .tagline { color: var(--neon-pink); font-size: 0.9rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
 
-        /* FORM & INPUT CONTROLS */
+        /* FORMS & INPUTS */
         .form-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .input-field {
             width: 100%; height: 55px; background: #111; border: 2px solid #333; 
@@ -49,19 +49,24 @@
         .input-field:focus { border-color: var(--neon-pink); box-shadow: var(--glow-pink); }
         textarea.input-field { height: 100px; padding: 15px; resize: none; }
 
-        /* PROGRESS INDICATOR */
-        .progress-bar { width: 100%; height: 4px; background: #222; margin-bottom: 20px; border-radius: 2px; }
-        .progress-fill { width: 50%; height: 100%; background: var(--neon-pink); box-shadow: var(--glow-pink); transition: width 0.3s; }
-
-        /* TAG SYSTEM */
-        .tag-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
-        .tag { 
-            padding: 10px 18px; border: 1.5px solid #444; border-radius: 20px; 
-            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        /* RADAR UI */
+        .radar-container { position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; }
+        .radar-circle { 
+            position: absolute; width: 100%; height: 100%; border: 2px solid var(--neon-pink); 
+            border-radius: 50%; opacity: 0.3; box-shadow: var(--glow-pink);
         }
-        .tag.selected { border-color: var(--neon-pink); color: var(--neon-pink); box-shadow: var(--glow-pink); }
+        .radar-pulse { 
+            position: absolute; width: 100%; height: 100%; border: 4px solid var(--neon-pink); 
+            border-radius: 50%; animation: pulse 2s infinite; box-shadow: var(--glow-pink);
+        }
+        .radar-center { width: 15px; height: 15px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--btn-glow-pink); z-index: 5; }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.1); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
 
-        /* BUTTON ARCHITECTURE */
+        /* BUTTONS */
         .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .btn { 
             height: 55px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; 
@@ -75,10 +80,14 @@
         .apple { border-color: var(--apple); box-shadow: 0 0 10px var(--apple); }
         .google { border-color: var(--google); box-shadow: 0 0 10px var(--google); }
         .insta { border-color: var(--insta); box-shadow: 0 0 10px var(--insta); }
-        .snap { border-color: var(--snap); color: var(--snap); box-shadow: 0 0 10px var(--snap); }
+        .snap { border-color: var(--snap); box-shadow: 0 0 10px var(--snap); }
         .facebook { border-color: var(--fb); box-shadow: 0 0 10px var(--fb); }
         .x-com { border-color: var(--x); box-shadow: 0 0 10px var(--x); }
         .gmail { border-color: var(--gmail); box-shadow: 0 0 10px var(--gmail); }
+
+        .tag-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+        .tag { padding: 10px 18px; border: 1.5px solid #444; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+        .tag.selected { border-color: var(--neon-pink); color: var(--neon-pink); box-shadow: var(--glow-pink); }
 
         .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; cursor: pointer; text-align: center; }
         .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow-pink); }
@@ -133,29 +142,38 @@
     </div>
 
     <div id="onboardingScreen" class="screen hidden">
-        <div class="progress-bar"><div id="p-fill" class="progress-fill"></div></div>
-        <div class="header"><h1 class="logo" style="font-size: 2.5rem;">SETUP</h1><p class="tagline">Tell us about you</p></div>
-        
+        <div class="header"><h1 class="logo" style="font-size: 2.5rem;">SETUP</h1><p class="tagline">AI Personalization</p></div>
         <div class="form-container" id="step1">
             <input type="text" class="input-field" placeholder="Display Name">
             <textarea class="input-field" placeholder="Short Bio..."></textarea>
-            <button class="btn btn-pink" onclick="nextStep(2)">Next Step</button>
+            <button class="btn btn-pink" onclick="nextOnboarding()">Next Step</button>
         </div>
-
         <div class="form-container hidden" id="step2">
-            <p style="text-align: center; color: var(--neon-pink); font-weight: bold;">SELECT AI TAGS</p>
             <div class="tag-grid">
                 <div class="tag" onclick="this.classList.toggle('selected')">Gamer</div>
                 <div class="tag" onclick="this.classList.toggle('selected')">Techie</div>
-                <div class="tag" onclick="this.classList.toggle('selected')">Creative</div>
-                <div class="tag" onclick="this.classList.toggle('selected')">Athlete</div>
                 <div class="tag" onclick="this.classList.toggle('selected')">Developer</div>
-                <div class="tag" onclick="this.classList.toggle('selected')">AI Enthusiast</div>
                 <div class="tag" onclick="this.classList.toggle('selected')">First Principles</div>
             </div>
-            <button class="btn btn-pink" onclick="finishOnboarding()">Finish Setup</button>
+            <button class="btn btn-pink" onclick="navigate('mapScreen')">Activate Radar</button>
         </div>
         <div></div>
+    </div>
+
+    <div id="mapScreen" class="screen hidden">
+        <div class="header"><h1 class="logo" style="font-size: 2.5rem;">RADAR</h1><p class="tagline">Scanning Intent...</p></div>
+        
+        <div class="radar-container">
+            <div class="radar-circle"></div>
+            <div class="radar-pulse"></div>
+            <div class="radar-pulse" style="animation-delay: 1s;"></div>
+            <div class="radar-center"></div>
+        </div>
+
+        <div class="btn-group">
+            <div style="text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 10px;">DASHBOARD PREVIEW</div>
+            <button class="btn btn-pink" onclick="navigate('landingScreen')">Logout</button>
+        </div>
     </div>
 
     <script>
@@ -165,27 +183,14 @@
             if(target) { target.classList.remove('hidden'); target.classList.add('active'); }
         }
 
-        function processForm(event, nextScreen) {
-            event.preventDefault();
-            alert("WYA: Access Granted. Welcome!");
-            navigate(nextScreen);
-        }
+        function processForm(event, nextScreen) { event.preventDefault(); navigate(nextScreen); }
 
-        function nextStep(step) {
+        function nextOnboarding() {
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
-            document.getElementById('p-fill').style.width = '100%';
         }
 
-        function finishOnboarding() {
-            alert("Profile 100% Complete. Welcome to the Network.");
-            navigate('landingScreen');
-        }
-
-        function socialAuth(provider) {
-            alert("Connecting to " + provider);
-            setTimeout(() => { navigate('onboardingScreen'); }, 1000);
-        }
+        function socialAuth(provider) { alert("Handshake with " + provider); setTimeout(() => { navigate('onboardingScreen'); }, 1000); }
     </script>
 </body>
 </html>
