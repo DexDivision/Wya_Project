@@ -8,109 +8,68 @@
         :root { 
             --bg: #000; 
             --neon-pink: #ff00ff; 
-            --glow: 0 0 15px var(--neon-pink);
-            --btn-glow: 0 0 25px var(--neon-pink);
+            --glow-pink: 0 0 15px var(--neon-pink);
+            --btn-glow-pink: 0 0 25px var(--neon-pink);
+            
+            /* Social Brand Colors */
+            --apple: #ffffff; --google: #4285F4; --insta: #f09433; 
+            --snap: #FFFC00; --fb: #1877F2; --x: #ffffff; --gmail: #EA4335;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body { 
-            margin: 0; 
-            background: var(--bg); 
-            color: #FFF; 
-            font-family: -apple-system, sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
-            width: 100vw;
+            margin: 0; background: var(--bg); color: #FFF; 
+            font-family: -apple-system, sans-serif; overflow: hidden; 
+            height: 100vh; width: 100vw;
         }
         
         .screen { 
-            height: 100%; 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 60px 20px; 
+            height: 100%; width: 100%; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-between; padding: 60px 20px; 
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-            position: absolute; 
-            top: 0;
-            left: 0;
-            background: #000;
+            position: absolute; top: 0; left: 0; background: #000;
         }
         
-        .hidden { 
-            transform: translateX(100%); 
-            opacity: 0; 
-            pointer-events: none; 
-            z-index: 0;
-            visibility: hidden;
-        }
-        
-        .active { 
-            transform: translateX(0); 
-            opacity: 1; 
-            pointer-events: all; 
-            z-index: 10;
-            visibility: visible;
-        }
+        .hidden { transform: translateX(100%); opacity: 0; pointer-events: none; z-index: 0; visibility: hidden; }
+        .active { transform: translateX(0); opacity: 1; pointer-events: all; z-index: 10; visibility: visible; }
 
-        /* HEADER & NEON STYLES */
-        .header { text-align: center; margin-top: 40px; }
-        .logo { 
-            font-size: 5rem; 
-            font-weight: 900; 
-            letter-spacing: 10px; 
-            margin: 0; 
-            color: var(--neon-pink); 
-            text-shadow: var(--glow);
-        }
-        .tagline { 
-            color: var(--neon-pink); 
-            font-size: 1rem; 
-            text-transform: uppercase; 
-            margin-top: 5px; 
-            letter-spacing: 4px;
-            font-weight: 800;
-            text-shadow: var(--glow);
-        }
+        /* HEADER */
+        .header { text-align: center; margin-top: 20px; }
+        .logo { font-size: 5rem; font-weight: 900; letter-spacing: 10px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
+        .tagline { color: var(--neon-pink); font-size: 1rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
 
-        /* BUTTONS */
-        .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        /* BUTTONS BASE */
+        .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .btn { 
-            height: 60px; 
-            border-radius: 12px; 
-            font-size: 1.2rem; 
-            font-weight: 900; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: 0.2s;
-            border: none;
+            height: 55px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            text-decoration: none; text-transform: uppercase; transition: 0.2s; border: none;
         }
-        .btn:active { transform: scale(0.96); opacity: 0.8; }
+        .btn:active { transform: scale(0.96); }
 
-        .btn-primary { 
-            background: transparent; 
-            color: var(--neon-pink); 
+        /* PINK NEON BUTTONS (Create & Sign In) */
+        .btn-pink { 
+            background: transparent; color: var(--neon-pink); 
             border: 4px solid var(--neon-pink) !important; 
-            box-shadow: var(--btn-glow);
-            text-shadow: var(--glow);
+            box-shadow: var(--btn-glow-pink); text-shadow: var(--glow-pink);
         }
 
-        .btn-secondary { background: transparent; color: #FFF; border: 2px solid #FFF !important; }
+        /* SOCIAL GRID */
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 5px; }
+        .btn-social { background: #111; color: #FFF; border-width: 2px; border-style: solid; font-size: 0.75rem; border-radius: 10px; }
 
-        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
-        .btn-social { height: 48px; background: #111; color: #FFF; border: 1px solid #333; font-size: 0.8rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        /* SOCIAL THEMES */
+        .apple { border-color: #555; color: #fff; box-shadow: 0 0 10px #555; }
+        .google { border-color: var(--google); color: #fff; box-shadow: 0 0 10px var(--google); }
+        .insta { border-color: #E1306C; color: #fff; box-shadow: 0 0 10px #E1306C; }
+        .snap { border-color: var(--snap); color: var(--snap); box-shadow: 0 0 10px var(--snap); }
+        .facebook { border-color: var(--fb); color: #fff; box-shadow: 0 0 10px var(--fb); }
+        .x-com { border-color: #fff; color: #fff; box-shadow: 0 0 10px #fff; }
+        .gmail { border-color: var(--gmail); color: #fff; box-shadow: 0 0 10px var(--gmail); }
 
-        .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; cursor: pointer; }
-        .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow); text-transform: uppercase; }
-
-        /* PLACEHOLDER FORM STYLING */
-        .form-info { color: #FFF; text-align: center; font-size: 1.2rem; margin-top: 20px; }
+        .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; cursor: pointer; text-align: center; }
+        .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow-pink); }
     </style>
 </head>
 <body>
@@ -121,7 +80,7 @@
             <p class="tagline">Where You At?</p>
         </div>
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="navigateTo('authScreen')">Get Started</button>
+            <button class="btn btn-pink" onclick="navigate('authScreen')">Get Started</button>
         </div>
         <div></div>
     </div>
@@ -132,62 +91,52 @@
             <p class="tagline">Where You At?</p>
         </div>
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="navigateTo('signUpScreen')">Create Account</button>
-            <button class="btn btn-secondary" onclick="navigateTo('signInScreen')">Sign In</button>
+            <button class="btn btn-pink" onclick="navigate('signUpScreen')">Create Account</button>
+            <button class="btn btn-pink" onclick="navigate('signInScreen')">Sign In</button>
+            
             <div class="social-grid">
-                <button class="btn btn-social" onclick="socialAuth('Apple')">Apple</button>
-                <button class="btn btn-social" onclick="socialAuth('Google')">Google</button>
-                <button class="btn btn-social" onclick="socialAuth('Instagram')">Instagram</button>
-                <button class="btn btn-social" onclick="socialAuth('Snapchat')">Snapchat</button>
-                <button class="btn btn-social" onclick="socialAuth('Facebook')">Facebook</button>
-                <button class="btn btn-social" onclick="socialAuth('X')">X (Twitter)</button>
-                <button class="btn btn-social" onclick="socialAuth('Gmail')">Gmail</button>
-                <button class="btn btn-social" onclick="socialAuth('More')">More...</button>
+                <button class="btn btn-social apple" onclick="socialAuth('Apple')">Apple</button>
+                <button class="btn btn-social google" onclick="socialAuth('Google')">Google</button>
+                <button class="btn btn-social insta" onclick="socialAuth('Instagram')">Instagram</button>
+                <button class="btn btn-social snap" onclick="socialAuth('Snapchat')">Snapchat</button>
+                <button class="btn btn-social facebook" onclick="socialAuth('Facebook')">Facebook</button>
+                <button class="btn btn-social x-com" onclick="socialAuth('X')">X</button>
+                <button class="btn btn-social gmail" onclick="socialAuth('Gmail')">Gmail</button>
+                <button class="btn btn-social" style="border-color:#333">More...</button>
             </div>
         </div>
-        <div class="footer-link" onclick="navigateTo('signInScreen')">Already have an account? <span>Sign In</span></div>
+        <div class="footer-link" onclick="navigate('signInScreen')">Already have an account? <span>Sign In</span></div>
     </div>
 
     <div id="signUpScreen" class="screen hidden">
-        <div class="header">
-            <h1 class="logo" style="font-size: 3rem;">JOIN</h1>
-            <p class="tagline">Create your WYA Profile</p>
-        </div>
-        <div class="form-info">Sign Up Form Coming Soon...</div>
-        <button class="btn btn-secondary" style="width: 80%;" onclick="navigateTo('authScreen')">Back</button>
-        <div></div>
+        <div class="header"><h1 class="logo" style="font-size: 3rem;">JOIN</h1><p class="tagline">WYA Profile</p></div>
+        <div style="text-align:center">Registration logic loading...</div>
+        <button class="btn btn-pink" style="width: 80%;" onclick="navigate('authScreen')">Back</button>
     </div>
 
     <div id="signInScreen" class="screen hidden">
-        <div class="header">
-            <h1 class="logo" style="font-size: 3rem;">LOGIN</h1>
-            <p class="tagline">Welcome Back</p>
-        </div>
-        <div class="form-info">Sign In Form Coming Soon...</div>
-        <button class="btn btn-secondary" style="width: 80%;" onclick="navigateTo('authScreen')">Back</button>
-        <div></div>
+        <div class="header"><h1 class="logo" style="font-size: 3rem;">LOGIN</h1><p class="tagline">Welcome Back</p></div>
+        <div style="text-align:center">Credential logic loading...</div>
+        <button class="btn btn-pink" style="width: 80%;" onclick="navigate('authScreen')">Back</button>
     </div>
 
     <script>
-        // Global Navigation Controller
-        function navigateTo(targetId) {
-            // Hide all screens
-            const screens = document.querySelectorAll('.screen');
-            screens.forEach(screen => {
-                screen.classList.remove('active');
-                screen.classList.add('hidden');
+        function navigate(id) {
+            console.log("Navigating to: " + id);
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+                s.classList.add('hidden');
             });
-
-            // Activate Target Screen
-            const target = document.getElementById(targetId);
-            target.classList.remove('hidden');
-            target.classList.add('active');
+            const target = document.getElementById(id);
+            if(target) {
+                target.classList.remove('hidden');
+                target.classList.add('active');
+            }
         }
 
-        // Social Auth Handler
         function socialAuth(provider) {
-            alert("Connecting to " + provider + " API...");
-            // Logic for OAuth redirection goes here
+            console.log("Auth triggered for: " + provider);
+            alert("Connecting to " + provider);
         }
     </script>
 </body>
