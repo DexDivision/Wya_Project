@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA V2.2.0 - FAITH OS</title>
+    <title>WYA V2.3.0 - FAITH OS</title>
     <style>
         :root { 
             --bg: #000; 
@@ -17,7 +17,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
         
-        /* HUD Elements */
         #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; opacity: 0.6; }
         #personnelCount { position: fixed; top: 50px; right: 20px; font-size: 0.7rem; color: var(--connected); font-weight: 900; z-index: 1000; letter-spacing: 1px; }
 
@@ -32,18 +31,23 @@
         #sidebarOverlay.visible { display: block; }
         .sidebar-toggle { position: fixed; left: 20px; top: 15px; z-index: 110; font-size: 1.8rem; color: var(--neon-pink); cursor: pointer; background: none; border: none; }
 
-        /* Personnel Modal */
+        /* Personnel Modal & Close Logic */
         #profileModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -45%) scale(0.9); width: 90%; max-width: 340px; background: rgba(5,5,5,0.98); border: 1px solid var(--neon-pink); border-radius: 24px; padding: 30px; z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--glow-pink); }
         #profileModal.show { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.2rem; color: #444; cursor: pointer; font-weight: 900; }
+        
         .truth-meter { width: 100%; height: 4px; background: #111; border-radius: 2px; margin: 20px 0; overflow: hidden; }
         .truth-fill { height: 100%; background: var(--connected); box-shadow: 0 0 10px var(--connected); transition: width 1.2s; }
 
         /* Radar UI */
         .radar-container { position: relative; width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; }
         .radar-circle { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(255, 0, 255, 0.15); border-radius: 50%; }
-        .sonar-sweep { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 0, 255, 0.1) 30deg, transparent 60deg); animation: sweep 4s linear infinite; pointer-events: none; }
+        .sonar-sweep { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 0, 255, 0.05) 30deg, transparent 60deg); animation: sweep 4s linear infinite; pointer-events: none; }
         .radar-center { width: 10px; height: 10px; background: #FFF; border-radius: 50%; box-shadow: 0 0 15px #FFF; z-index: 60; }
-        .user-node { position: absolute; width: 16px; height: 16px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); cursor: pointer; z-index: 55; transition: 0.3s; }
+        
+        /* Proximity Pulse Animation */
+        .user-node { position: absolute; width: 18px; height: 18px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); cursor: pointer; z-index: 55; animation: proximityPulse infinite ease-in-out; }
+        @keyframes proximityPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 25px var(--neon-pink); } }
 
         /* Intent Filters */
         .filter-bar { display: flex; gap: 10px; overflow-x: auto; width: 100%; max-width: 400px; padding: 10px 0; scrollbar-width: none; }
@@ -51,27 +55,27 @@
         .filter-chip { flex: 0 0 auto; padding: 8px 16px; border-radius: 20px; border: 1px solid #333; font-size: 0.7rem; font-weight: 800; color: #666; text-transform: uppercase; transition: 0.2s; cursor: pointer; }
         .filter-chip.active { border-color: var(--connected); color: var(--connected); box-shadow: var(--connected-glow); }
 
-        /* Buttons */
         .btn { height: 60px; border-radius: 16px; font-size: 1rem; font-weight: 900; cursor: pointer; text-transform: uppercase; border: 2px solid var(--neon-pink); background: transparent; color: var(--neon-pink); width: 100%; box-shadow: var(--btn-glow-pink); }
         
         @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body onload="checkAuth()">
-    <div id="versionTag">FAITH_OS_V2.2.0</div>
-    <div id="personnelCount">SIGNALS: 03</div>
-    <div id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div id="versionTag">FAITH_OS_V2.3.0</div>
+    <div id="personnelCount">SIGNALS: 04</div>
+    <div id="sidebarOverlay" onclick="closeAllOverlays()"></div>
     
     <div id="sidebar">
         <h2 style="color: var(--neon-pink); text-transform: uppercase; letter-spacing: 3px; font-size: 1rem; margin-bottom: 30px;">System Menu</h2>
-        <button class="btn" style="height: 45px; font-size: 0.75rem; margin-bottom:12px;" onclick="navigate('bridgeScreen'); toggleSidebar();">Identity Bridge</button>
+        <button class="btn" style="height: 45px; font-size: 0.75rem; margin-bottom:12px;" onclick="navigate('bridgeScreen'); closeAllOverlays();">Identity Bridge</button>
         <button class="btn" style="height: 45px; font-size: 0.75rem; border-color: #444; color: #888;" onclick="logout()">Deactivate OS</button>
     </div>
     <button id="menuBtn" class="sidebar-toggle" style="display:none;" onclick="toggleSidebar()">☰</button>
 
     <div id="profileModal">
+        <span class="modal-close" onclick="closeProfile()">✕</span>
         <div style="text-align: center;">
-            <p style="font-size: 0.6rem; color: var(--neon-pink); margin-bottom: 5px; font-weight: 900;">TARGET IDENTIFIED</p>
+            <p id="proximityHUD" style="font-size: 0.6rem; color: var(--neon-pink); margin-bottom: 5px; font-weight: 900;">SIGNAL DISTANCE: --m</p>
             <h3 id="modalName" style="margin: 0; color: #FFF; letter-spacing: 2px; font-size: 1.4rem;">USER_ID</h3>
             <p id="modalTag" style="font-size: 0.7rem; color: #888; margin: 8px 0; text-transform: uppercase;">SCANNING...</p>
             <div class="truth-meter"><div id="truthFill" class="truth-fill" style="width: 0%;"></div></div>
@@ -87,18 +91,13 @@
 
     <div id="mapScreen" class="screen hidden">
         <div class="radar-container" id="radarField">
-            <div class="radar-circle"></div>
-            <div class="sonar-sweep"></div>
-            <div class="radar-center"></div>
+            <div class="radar-circle"></div><div class="sonar-sweep"></div><div class="radar-center"></div>
         </div>
-
-        <div class="filter-bar" id="intentFilters">
+        <div class="filter-bar">
             <div class="filter-chip active" onclick="setFilter('ALL', this)">All</div>
             <div class="filter-chip" onclick="setFilter('FIRST_PRINCIPLES', this)">First Principles</div>
             <div class="filter-chip" onclick="setFilter('TECH', this)">Tech</div>
-            <div class="filter-chip" onclick="setFilter('SOCIAL', this)">Social</div>
         </div>
-
         <button class="btn" onclick="toggleSidebar()">System Access</button>
     </div>
 
@@ -109,31 +108,27 @@
 
     <script>
         const mockUsers = [
-            { name: "Alpha_01", tag: "Logic Architect", score: 96, cat: 'FIRST_PRINCIPLES' },
-            { name: "Neon_Rider", tag: "Neural Networker", score: 82, cat: 'TECH' },
-            { name: "Faith_Lead", tag: "Strategic Founder", score: 100, cat: 'FIRST_PRINCIPLES' },
-            { name: "Sync_Vibe", tag: "Social Lead", score: 85, cat: 'SOCIAL' }
+            { name: "Alpha_01", tag: "Logic Architect", score: 96, cat: 'FIRST_PRINCIPLES', dist: 45 },
+            { name: "Neon_Rider", tag: "Neural Networker", score: 82, cat: 'TECH', dist: 120 },
+            { name: "Faith_Lead", tag: "Strategic Founder", score: 100, cat: 'FIRST_PRINCIPLES', dist: 10 },
+            { name: "Sync_Vibe", tag: "Social Lead", score: 85, cat: 'SOCIAL', dist: 200 }
         ];
 
         let currentFilter = 'ALL';
 
-        function checkAuth() {
-            if (localStorage.getItem('FAITH_AUTH_TOKEN')) navigate('mapScreen');
-        }
-
-        function simulateLogin() {
-            localStorage.setItem('FAITH_AUTH_TOKEN', 'true');
-            navigate('mapScreen');
-        }
-
-        function logout() {
-            localStorage.removeItem('FAITH_AUTH_TOKEN');
-            location.reload();
-        }
+        function checkAuth() { if (localStorage.getItem('FAITH_AUTH_TOKEN')) navigate('mapScreen'); }
+        function simulateLogin() { localStorage.setItem('FAITH_AUTH_TOKEN', 'true'); navigate('mapScreen'); }
+        function logout() { localStorage.removeItem('FAITH_AUTH_TOKEN'); location.reload(); }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('visible');
+        }
+
+        function closeAllOverlays() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('visible');
+            closeProfile();
         }
 
         function setFilter(filter, el) {
@@ -153,7 +148,6 @@
         function renderNodes() {
             const field = document.getElementById('radarField');
             document.querySelectorAll('.user-node').forEach(n => n.remove());
-            
             const filtered = mockUsers.filter(u => currentFilter === 'ALL' || u.cat === currentFilter);
             document.getElementById('personnelCount').innerText = `SIGNALS: 0${filtered.length}`;
 
@@ -161,9 +155,14 @@
                 const node = document.createElement('div');
                 node.className = 'user-node';
                 const angle = (i * 90 + 45) * Math.PI / 180;
-                const dist = 100 + (i * 10);
-                node.style.left = (170 + dist * Math.cos(angle) - 8) + 'px';
-                node.style.top = (170 + dist * Math.sin(angle) - 8) + 'px';
+                const radius = 60 + (user.dist * 0.6); // Distance maps to radar radius
+                node.style.left = (170 + radius * Math.cos(angle) - 9) + 'px';
+                node.style.top = (170 + radius * Math.sin(angle) - 9) + 'px';
+                
+                // Proximity Pulse Logic: Closer = Faster
+                const pulseDuration = Math.max(0.5, user.dist / 50);
+                node.style.animationDuration = `${pulseDuration}s`;
+                
                 node.onclick = () => showProfile(user);
                 field.appendChild(node);
             });
@@ -173,12 +172,15 @@
             document.getElementById('modalName').innerText = user.name;
             document.getElementById('modalTag').innerText = user.tag;
             document.getElementById('truthScore').innerText = user.score;
+            document.getElementById('proximityHUD').innerText = `SIGNAL DISTANCE: ${user.dist}m`;
             document.getElementById('profileModal').classList.add('show');
+            document.getElementById('sidebarOverlay').classList.add('visible');
             setTimeout(() => { document.getElementById('truthFill').style.width = user.score + '%'; }, 100);
         }
 
         function closeProfile() {
             document.getElementById('profileModal').classList.remove('show');
+            document.getElementById('sidebarOverlay').classList.remove('visible');
             document.getElementById('truthFill').style.width = '0%';
         }
     </script>
