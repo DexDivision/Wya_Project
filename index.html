@@ -12,7 +12,7 @@
             --btn-glow: 0 0 25px var(--neon-pink);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
             margin: 0; 
@@ -22,9 +22,6 @@
             overflow: hidden; 
             height: 100vh;
             width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
         
         .screen { 
@@ -35,17 +32,31 @@
             align-items: center; 
             justify-content: space-between; 
             padding: 60px 20px; 
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
             position: absolute; 
             top: 0;
             left: 0;
             background: #000;
         }
         
-        .hidden { transform: scale(0.95); opacity: 0; pointer-events: none; }
-        .active { transform: scale(1); opacity: 1; pointer-events: all; }
+        /* FIX: Added pointer-events and z-index to prevent ghosting */
+        .hidden { 
+            transform: translateX(-100%); 
+            opacity: 0; 
+            pointer-events: none; 
+            z-index: 0;
+            visibility: hidden; /* Ensures it is fully removed from render */
+        }
+        
+        .active { 
+            transform: translateX(0); 
+            opacity: 1; 
+            pointer-events: all; 
+            z-index: 10;
+            visibility: visible;
+        }
 
-        /* HEADER & NEON SLOGAN */
+        /* HEADER & NEON STYLES */
         .header { text-align: center; margin-top: 40px; }
         .logo { 
             font-size: 5rem; 
@@ -65,9 +76,8 @@
             text-shadow: var(--glow);
         }
 
-        /* GLOWING BUTTONS */
+        /* BUTTONS */
         .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
-        
         .btn { 
             height: 60px; 
             border-radius: 12px; 
@@ -78,7 +88,6 @@
             align-items: center; 
             justify-content: center; 
             text-decoration: none;
-            transition: 0.2s;
             text-transform: uppercase;
         }
 
@@ -90,33 +99,11 @@
             text-shadow: var(--glow);
         }
 
-        .btn-secondary { 
-            background: transparent; 
-            color: #FFF; 
-            border: 2px solid #FFF; 
-        }
+        .btn-secondary { background: transparent; color: #FFF; border: 2px solid #FFF; }
 
-        /* SOCIAL GRID - MAX LISTING */
-        .social-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            width: 100%; 
-            margin-top: 10px; 
-        }
-        
-        .btn-social { 
-            height: 48px; 
-            background: #111; 
-            color: #FFF; 
-            border: 1px solid #333; 
-            font-size: 0.8rem; 
-            border-radius: 8px; 
-            font-weight: 600; 
-            cursor: pointer; 
-        }
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
+        .btn-social { height: 48px; background: #111; color: #FFF; border: 1px solid #333; font-size: 0.8rem; border-radius: 8px; font-weight: 600; }
 
-        /* FOOTER */
         .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; }
         .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow); text-transform: uppercase; }
     </style>
@@ -139,11 +126,9 @@
             <h1 class="logo" style="font-size: 3.5rem;">WYA</h1>
             <p class="tagline">Where You At?</p>
         </div>
-
         <div class="btn-group">
             <button class="btn btn-primary">Create Account</button>
             <button class="btn btn-secondary">Sign In</button>
-            
             <div class="social-grid">
                 <button class="btn btn-social">Apple</button>
                 <button class="btn btn-social">Google</button>
@@ -155,17 +140,20 @@
                 <button class="btn btn-social">More...</button>
             </div>
         </div>
-
         <a href="#" class="footer-link">Already have an account? <span>Sign In</span></a>
     </div>
 
     <script>
         function showAuth() {
-            document.getElementById('landingScreen').classList.remove('active');
-            document.getElementById('landingScreen').classList.add('hidden');
+            // Mechanics: Immediate z-index and visibility kill to prevent "ghost" buttons
+            const landing = document.getElementById('landingScreen');
+            const auth = document.getElementById('authScreen');
             
-            document.getElementById('authScreen').classList.remove('hidden');
-            document.getElementById('authScreen').classList.add('active');
+            landing.classList.remove('active');
+            landing.classList.add('hidden');
+            
+            auth.classList.remove('hidden');
+            auth.classList.add('active');
         }
     </script>
 </body>
