@@ -3,241 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA Live Demo</title>
+    <title>WYA - Boardman Alpha</title>
+    
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    
     <style>
-        body { margin: 0; padding: 0; background-color: #000; font-family: sans-serif; overflow: hidden; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        :root { 
+            --neon-cyan: #00ffff; 
+            --neon-pink: #ff00ff; 
+            --electric-red: #ff3b30; 
+            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #000;
+        }
+
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
+
+        /* Full-Screen Onboarding Layers */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(25px);
+            z-index: 10000; display: flex; justify-content: center; align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .glass-card {
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 35px; padding: 40px; text-align: center; width: 85%; max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .neon-text { text-transform: uppercase; letter-spacing: 3px; font-weight: 900; text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 10px; }
         
-        /* TOS Overlay (Clickwrap Agreement) */
-        #tos-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        #tos-container {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 400px;
-            width: 90%;
-            height: 50vh;
-            overflow-y: auto;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        #tos-container h2 { margin-top: 0; font-size: 1.4em; text-align: center; color: #fff; }
-        #tos-container h3 { color: #007cff; font-size: 0.9em; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        #tos-container p { font-size: 0.85em; color: #aaa; line-height: 1.5; }
-        
-        #agree-btn {
-            background-color: #34c759;
-            color: #fff;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            box-shadow: 0 4px 20px rgba(52, 199, 89, 0.2);
-            transition: all 0.3s ease;
-        }
-        #agree-btn:active { transform: scale(0.95); }
-
-        /* Alpha Founder Node (User) */
-        .alpha-node {
-            background-color: #007cff;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 15px #007cff;
-            transition: transform 0.8s linear;
+        /* Inputs & Buttons */
+        .auth-input {
+            width: 100%; padding: 18px; margin-bottom: 15px; border-radius: 15px;
+            background: #111; border: 1px solid #333; color: #fff; font-size: 1rem; box-sizing: border-box;
         }
 
-        /* Target Match Node (Stationary) */
-        .target-node {
-            background-color: #ff3b30;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 0 20px #ff3b30;
-            animation: pulse 1.5s infinite;
-            display: none;
+        .primary-btn {
+            background: var(--neon-cyan); color: #000; border: none; padding: 20px;
+            width: 100%; border-radius: 50px; font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; cursor: pointer; box-shadow: 0 0 20px var(--neon-cyan);
+            transition: 0.2s;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .primary-btn:active { transform: scale(0.95); box-shadow: 0 0 40px var(--neon-cyan); }
 
-        /* Distance HUD */
+        /* Category Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .card {
+            background: rgba(255,255,255,0.02); border: 1px solid #333;
+            padding: 20px; border-radius: 20px; cursor: pointer; transition: 0.3s;
+        }
+        .card:active { border-color: var(--neon-pink); background: rgba(255, 0, 255, 0.1); }
+        .card h3 { font-size: 0.8rem; margin: 10px 0 0 0; letter-spacing: 1px; }
+
+        /* HUD Ticker */
         #hud {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.85);
-            color: #888;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            font-weight: bold;
-            z-index: 10;
-            pointer-events: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-        .dist-value { color: #fff; font-size: 1.2em; display: block; margin-top: 5px; }
-
-        /* The UI Button */
-        #ui-controls {
-            position: absolute;
-            bottom: 40px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 20;
-        }
-        #poke-btn {
-            background-color: #fff;
-            color: #000;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
-            transition: all 0.3s ease;
+            position: absolute; top: 20px; right: 20px; z-index: 100;
+            background: var(--glass); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+            padding: 10px 15px; text-align: right;
         }
     </style>
 </head>
 <body>
-    <div id="tos-overlay">
-        <div id="tos-container">
-            <h2>Terms of Service</h2>
-            <p><strong>Operated by:</strong> Faubel Asset & Innovation Tech Holdings LLC</p>
-            <p>By accessing the WYA network, you agree to the following terms and assume all associated risks.</p>
-            
-            <h3>1. Assumption of Risk</h3>
-            <p>This service facilitates real-world meetups. Your physical interactions are strictly at your own risk. We do not conduct background checks.</p>
-            
-            <h3>2. Dynamic Location Tracking</h3>
-            <p>WYA utilizes real-time location data to execute the Compass Mini-Game and Geofence functionalities. By proceeding, you explicitly consent to this tracking.</p>
-            
-            <h3>3. Network Integrity</h3>
-            <p>Spoofing and bot activity are prohibited. Accounts suspected of manipulation will be silently quarantined into Ghost Lobbies without notice.</p>
-            
-            <h3>4. Liability Limitation</h3>
-            <p>The Company is not liable for real-world interactions, emotional distress, or potential data breaches.</p>
+
+    <div id="tos-step" class="overlay">
+        <div class="glass-card">
+            <h1 class="neon-text" style="text-shadow: 0 0 15px var(--neon-pink);">WYA AGREEMENT</h1>
+            <p style="color: #888; font-size: 0.9rem; line-height: 1.5;">Faubel Asset & Innovation Tech Holdings LLC<br><br>0.8s Location Intervals Enabled.<br>Physical risks assumed by user.</p>
+            <button class="primary-btn" style="background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
         </div>
-        <button id="agree-btn">I AGREE & ENTER</button>
+    </div>
+
+    <div id="auth-step" class="overlay" style="display:none;">
+        <div class="glass-card">
+            <h2 class="neon-text">WYA ACCESS</h2>
+            <input type="email" id="email" placeholder="Email Address" class="auth-input">
+            <input type="password" id="password" placeholder="Password" class="auth-input">
+            <button class="primary-btn" onclick="handleSignup()">CREATE ACCOUNT</button>
+            <p style="font-size: 0.8rem; margin-top: 20px; color: #555;">Returning? <span style="color: var(--neon-cyan)" onclick="handleLogin()">Sign In</span></p>
+        </div>
+    </div>
+
+    <div id="vibe-step" class="overlay" style="display:none;">
+        <div class="glass-card" style="max-width: 500px;">
+            <h2 class="neon-text" style="text-shadow: 0 0 15px #fff;">WHAT'S THE MOVE?</h2>
+            <div class="grid">
+                <div class="card" onclick="setVibe('The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
+                <div class="card" onclick="setVibe('Business/Faith')"><span>💼</span><h3>BUSINESS/FAITH</h3></div>
+                <div class="card" onclick="setVibe('Flash Burns')"><span>🍕</span><h3>FLASH BURNS</h3></div>
+                <div class="card" onclick="setVibe('Discovery')"><span>🎲</span><h3>SURPRISE ME</h3></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bio-step" class="overlay" style="display:none;">
+        <div class="glass-card">
+            <h2 class="neon-text">YOUR BIO</h2>
+            <textarea id="bio" placeholder="Founder looking for venues... / Local Bible study group leader..." class="auth-input" style="height: 120px; padding-top: 15px;"></textarea>
+            <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
+        </div>
     </div>
 
     <div id="hud">
-        Compass Status
-        <span id="distance" class="dist-value">Standby</span>
-    </div>
-
-    <div id="ui-controls">
-        <button id="poke-btn">POKE MATCH</button>
+        <span style="font-size: 0.6rem; color: var(--neon-cyan); font-weight: 800;">LIVE NODES</span>
+        <span style="display: block; font-size: 1.2rem; font-weight: 900;">142</span>
     </div>
 
     <div id="map"></div>
 
     <script>
-        // Handle TOS Clickwrap Agreement
-        document.getElementById('agree-btn').addEventListener('click', () => {
-            // Fade out and remove the overlay
-            const tosOverlay = document.getElementById('tos-overlay');
-            tosOverlay.style.transition = 'opacity 0.4s ease';
-            tosOverlay.style.opacity = '0';
-            setTimeout(() => {
-                tosOverlay.style.display = 'none';
-            }, 400);
-        });
-
-        const socket = io();
-        mapboxgl.accessToken = 'pk.eyJ1Ijoid3lhLWxpdmUiLCJhIjoiY21wMGZ3MGdxMTdoMDRqb3BwbGVscTRmYiJ9.kuZWQ6cwqaoj5Ziw8lm1Kw'; 
+        // --- SUPABASE WIRING (DO NOT MISTAKE THESE) ---
+        const supabaseUrl = 'https://snecdlasdeolhjefdlum.supabase.co';
         
-        const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/dark-v11',
-            center: [-80.6628, 41.0245], 
-            zoom: 15,
-            pitch: 60 
-        });
+        // PASTE YOUR ANON KEY BELOW (Between the quotes)
+        const supabaseKey = 'sb_publishable_PSWpgeEtFq5JFBy8Kqp1Vw_syzcrqSd'; 
+        
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Setup Nodes
-        const alphaEl = document.createElement('div');
-        alphaEl.className = 'alpha-node';
-        const alphaMarker = new mapboxgl.Marker(alphaEl)
-            .setLngLat([-80.6628, 41.0245])
-            .addTo(map);
+        let selectedVibe = '';
 
-        const targetCoords = [-80.6610, 41.0255]; 
-        const targetEl = document.createElement('div');
-        targetEl.className = 'target-node';
-        new mapboxgl.Marker(targetEl)
-            .setLngLat(targetCoords)
-            .addTo(map);
-
-        // Math Logic
-        function getDistance(coords1, coords2) {
-            const R = 6371e3; 
-            const lat1 = coords1[1] * Math.PI/180;
-            const lat2 = coords2[1] * Math.PI/180;
-            const deltaLat = (coords2[1]-coords1[1]) * Math.PI/180;
-            const deltaLon = (coords2[0]-coords1[0]) * Math.PI/180;
-            const a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
-                      Math.cos(lat1) * Math.cos(lat2) *
-                      Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return (R * c * 3.28084).toFixed(0); 
+        function nextStep(current, next) {
+            document.getElementById(current).style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById(current).style.display = 'none';
+                document.getElementById(next).style.display = 'flex';
+            }, 500);
         }
 
-        let compassActive = false;
+        async function handleSignup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { data, error } = await _supabase.auth.signUp({ email, password });
+            if (error) alert(error.message);
+            else nextStep('auth-step', 'vibe-step');
+        }
 
-        // Interaction Logic: The Pitch Demo
-        const pokeBtn = document.getElementById('poke-btn');
-        pokeBtn.addEventListener('click', () => {
-            pokeBtn.innerText = 'WAITING FOR ACCEPT...';
-            pokeBtn.style.backgroundColor = '#333';
-            pokeBtn.style.color = '#fff';
-            
-            setTimeout(() => {
-                compassActive = true;
-                pokeBtn.innerText = 'COMPASS LINKED';
-                pokeBtn.style.backgroundColor = '#34c759'; 
-                
-                targetEl.style.display = 'block';
-                document.getElementById('hud').style.color = '#ff3b30';
-                document.getElementById('hud').childNodes[0].nodeValue = 'Target Lock ';
-            }, 2000);
-        });
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+            else nextStep('auth-step', 'vibe-step');
+        }
 
-        // Server Updates
-        socket.on('node_joined', (data) => {
-            const userCoords = [data.lon, data.lat];
-            alphaMarker.setLngLat(userCoords);
-            map.panTo(userCoords, { duration: 800 });
+        function setVibe(vibe) {
+            selectedVibe = vibe;
+            nextStep('vibe-step', 'bio-step');
+        }
 
-            if(compassActive) {
-                const feet = getDistance(userCoords, targetCoords);
-                document.getElementById('distance').innerText = `${feet} FT`;
+        async function finalizeProfile() {
+            const bioText = document.getElementById('bio').value;
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (user) {
+                const { error } = await _supabase.from('profiles').upsert({ 
+                    id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText 
+                });
+                if (error) alert(error.message);
+                else {
+                    document.getElementById('bio-step').style.display = 'none';
+                    initMap();
+                }
             }
-        });
+        }
+
+        function initMap() {
+            mapboxgl.accessToken = 'pk.eyJ1Ijoid3lhLWxpdmUiLCJhIjoiY21wMGZ3MGdxMTdoMDRqb3BwbGVscTRmYiJ9.kuZWQ6cwqaoj5Ziw8lm1Kw';
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/dark-v11',
+                center: [-80.6628, 41.0245], zoom: 15, pitch: 60
+            });
+            
+            // Add Pulsing Alpha Node
+            const el = document.createElement('div');
+            el.style.width = '20px'; el.style.height = '20px';
+            el.style.background = '#fff'; el.style.borderRadius = '50%';
+            el.style.boxShadow = '0 0 20px var(--neon-cyan)';
+            new mapboxgl.Marker(el).setLngLat([-80.6628, 41.0245]).addTo(map);
+        }
     </script>
 </body>
 </html>
