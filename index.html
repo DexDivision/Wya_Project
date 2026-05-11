@@ -14,7 +14,6 @@
         :root { 
             --neon-cyan: #00ffff; 
             --neon-pink: #ff00ff; 
-            --electric-red: #ff3b30; 
             --glass: rgba(255, 255, 255, 0.1);
             --bg: #000;
         }
@@ -22,6 +21,7 @@
         body { margin: 0; padding: 0; background: var(--bg); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
+        /* Full-Screen UI Layers */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); backdrop-filter: blur(25px);
@@ -54,7 +54,7 @@
             width: 90%; max-width: 350px; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
             border: 2px solid var(--neon-cyan); border-radius: 25px; padding: 25px;
             z-index: 5000; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center; box-shadow: 0 -10px 40px rgba(0,255,255,0.3);
+            text-align: center;
         }
         #profile-card.active { bottom: 30px; }
 
@@ -63,6 +63,9 @@
             background: rgba(255,255,255,0.05); border: 1px solid #333;
             padding: 20px; border-radius: 20px; cursor: pointer;
         }
+
+        .toggle-auth { margin-top: 20px; font-size: 0.85rem; color: #888; }
+        .toggle-auth span { color: var(--neon-cyan); cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -70,17 +73,22 @@
     <div id="tos-step" class="overlay">
         <div class="glass-card">
             <h1 class="neon-text" style="text-shadow: 0 0 15px var(--neon-pink);">WYA AGREEMENT</h1>
-            <p style="color: #888; font-size: 0.9rem;">0.8s Tracking Enabled. Physical risks assumed by user.</p>
+            <p style="color: #888; font-size: 0.9rem;">0.8s Tracking Enabled. Physical risks assumed.</p>
             <button class="primary-btn" style="background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
         </div>
     </div>
 
     <div id="auth-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-text">WYA ACCESS</h2>
+            <h2 id="auth-title" class="neon-text">WYA ACCESS</h2>
             <input type="email" id="email" placeholder="Email" class="auth-input">
             <input type="password" id="password" placeholder="Password" class="auth-input">
-            <button class="primary-btn" onclick="handleSignup()">CREATE ACCOUNT</button>
+            
+            <button id="auth-btn" class="primary-btn" onclick="handleSignup()">CREATE ACCOUNT</button>
+            
+            <div class="toggle-auth" id="auth-toggle">
+                Already a member? <span onclick="toggleAuthMode()">Sign In</span>
+            </div>
         </div>
     </div>
 
@@ -99,43 +107,72 @@
     <div id="bio-step" class="overlay" style="display:none;">
         <div class="glass-card">
             <h2 class="neon-text">YOUR BIO</h2>
-            <textarea id="bio" placeholder="What are you looking for?" class="auth-input" style="height: 120px;"></textarea>
+            <textarea id="bio" placeholder="What are you looking for today?" class="auth-input" style="height: 120px;"></textarea>
             <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
         </div>
     </div>
 
     <div id="profile-card">
         <div style="color: var(--neon-pink); font-weight: 900; font-size: 0.8rem; text-transform: uppercase;">MEMBER PROFILE</div>
-        <h2 id="card-name" style="margin: 5px 0;">Alpha Founder</h2>
-        <p id="card-bio" style="color: #ccc; font-size: 0.9rem;">Founder of F.A.I.T.H. LLC. Connect with me.</p>
+        <h2 id="card-name" style="margin: 5px 0;">Alpha Node</h2>
+        <p id="card-bio" style="color: #ccc; font-size: 0.9rem;"></p>
         <button class="primary-btn" style="margin-top: 15px; padding: 12px; background: #fff; color: #000;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
     </div>
 
     <div id="map"></div>
 
     <script>
-        // --- DATABASE CONNECTION ---
         const supabaseUrl = 'https://snecdlasdeolhjefdlum.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuZWNkbGFzZGVvbGhqZWZkbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NDU4MjQsImV4cCI6MjA5NDAyMTgyNH0.X0wQlmb5vFxXDuW4HHCQMY3tLhRfhjQ7ElifFSxAGEI'; 
-        
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let selectedVibe = '';
+        let isLoginMode = false;
 
         function nextStep(current, next) {
             document.getElementById(current).style.display = 'none';
             document.getElementById(next).style.display = 'flex';
         }
 
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const title = document.getElementById('auth-title');
+            const btn = document.getElementById('auth-btn');
+            const toggle = document.getElementById('auth-toggle');
+
+            if (isLoginMode) {
+                title.innerText = "WELCOME BACK";
+                btn.innerText = "SIGN IN";
+                btn.onclick = handleLogin;
+                toggle.innerHTML = "New here? <span onclick='toggleAuthMode()'>Create Account</span>";
+            } else {
+                title.innerText = "WYA ACCESS";
+                btn.innerText = "CREATE ACCOUNT";
+                btn.onclick = handleSignup;
+                toggle.innerHTML = "Already a member? <span onclick='toggleAuthMode()'>Sign In</span>";
+            }
+        }
+
         async function handleSignup() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { data, error } = await _supabase.auth.signUp({ email, password });
-            if (error) alert(error.message);
-            else {
-                alert("Account created! Please check your email for a confirmation link.");
+            const { error } = await _supabase.auth.signUp({ email, password });
+            
+            if (error) {
+                // If account exists, try logging in
+                handleLogin();
+            } else {
                 nextStep('auth-step', 'vibe-step');
             }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) alert("Access Denied: " + error.message);
+            else nextStep('auth-step', 'vibe-step');
         }
 
         function setVibe(vibe) {
@@ -143,37 +180,22 @@
             nextStep('vibe-step', 'bio-step');
         }
 
-        // --- UPGRADED FINALIZE PROFILE FUNCTION (CODE ALERT) ---
         async function finalizeProfile() {
             const bioText = document.getElementById('bio').value;
-            const { data: { user }, error: authError } = await _supabase.auth.getUser();
+            const { data: { user } } = await _supabase.auth.getUser();
 
-            // ALERT 1: Check if actually logged in
-            if (authError || !user) {
-                alert("Auth Error: Make sure you clicked the link in your email!");
-                return;
+            if (user) {
+                await _supabase.from('profiles').upsert({ 
+                    id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText 
+                });
             }
 
-            // ALERT 2: Check if database accepted the save
-            const { error: dbError } = await _supabase.from('profiles').upsert({ 
-                id: user.id, 
-                email: user.email, 
-                current_vibe: selectedVibe, 
-                bio: bioText 
-            });
-
-            if (dbError) {
-                alert("Database Error: " + dbError.message);
-            } else {
-                // If everything is perfect, hide the screen and show map
-                document.getElementById('bio-step').style.display = 'none';
-                initMap(selectedVibe, bioText);
-            }
+            document.getElementById('bio-step').style.display = 'none';
+            initMap(selectedVibe, bioText);
         }
 
         function initMap(vibe, bio) {
             mapboxgl.accessToken = 'pk.eyJ1Ijoid3lhLWxpdmUiLCJhIjoiY21wMGZ3MGdxMTdoMDRqb3BwbGVscTRmYiJ9.kuZWQ6cwqaoj5Ziw8lm1Kw';
-            
             const map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/dark-v11',
