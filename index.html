@@ -12,10 +12,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>WYA V3.8.0</title>
+    <title>WYA V3.9.0</title>
     
     <style>
-        :root { --pink: #ff00ff; --green: #00ff41; --glass: rgba(255, 255, 255, 0.08); --blur: blur(25px); }
+        :root { --pink: #ff00ff; --green: #00ff41; --glass: rgba(255, 255, 255, 0.08); --blur: blur(30px); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -26,198 +26,198 @@
 
         .screen { 
             display: none; height: 100vh; width: 100vw; 
-            flex-direction: column; align-items: center; justify-content: center; 
-            padding: 30px; position: absolute; background: #000;
+            flex-direction: column; align-items: center; padding: 60px 25px; 
+            position: absolute; background: #000; overflow-y: auto;
         }
         .active { display: flex; z-index: 10; }
 
-        /* SIDE DRAWER */
-        #userDrawer {
-            position: fixed; top: 0; left: -100%; width: 80%; height: 100%;
-            background: rgba(10, 10, 10, 0.95); backdrop-filter: var(--blur);
-            z-index: 200; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 1px solid var(--pink); padding: 80px 20px;
-        }
-        #userDrawer.open { left: 0; }
-        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 150; }
-        .drawer-overlay.open { display: block; }
+        .top-nav { position: fixed; top: 50px; width: 90%; display: flex; justify-content: space-between; z-index: 100; align-items: center;}
+        .nav-icon { font-size: 1.2rem; cursor: pointer; padding: 10px; background: var(--glass); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;}
 
-        .top-nav { position: absolute; top: 60px; width: 90%; display: flex; justify-content: space-between; z-index: 100; }
-        .nav-icon { font-size: 1.2rem; cursor: pointer; opacity: 0.7; }
-
-        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: 12px; color: var(--pink); text-shadow: 0 0 20px var(--pink); }
-        
+        /* BUTTONS & UI */
         .btn {
-            background: var(--pink); color: #000; border: none; padding: 18px; border-radius: 15px;
-            font-weight: 900; width: 100%; max-width: 300px; text-transform: uppercase; letter-spacing: 2px;
-            cursor: pointer; margin-top: 20px;
+            background: var(--pink); color: #000; border: none; padding: 20px; border-radius: 20px;
+            font-weight: 900; width: 100%; max-width: 320px; text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; margin-top: 15px;
         }
+        .btn-outline { background: transparent; border: 1px solid var(--pink); color: var(--pink); }
 
-        /* PROFILE & TAGS */
-        .tag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin: 20px 0; max-height: 200px; overflow-y: auto; }
-        .tag { background: var(--glass); border: 1px solid #333; padding: 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; cursor: pointer; text-align: center; }
-        .tag.selected { border-color: var(--pink); color: var(--pink); background: rgba(255,0,255,0.1); }
-        
-        .custom-tag-box { display: flex; gap: 10px; width: 100%; margin-top: 10px; }
-        .input-minimal { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; padding: 10px; flex: 1; font-size: 0.8rem; }
+        /* INTENT SELECTOR */
+        .intent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin: 20px 0; }
+        .intent-card { background: var(--glass); border: 1px solid #222; padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .intent-card.selected { border-color: var(--pink); background: rgba(255,0,255,0.15); box-shadow: 0 0 15px rgba(255,0,255,0.3); }
+        .intent-card span { display: block; font-size: 1.2rem; margin-bottom: 5px; }
+        .intent-card label { font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; color: #888; }
 
         /* RADAR FIELD */
-        .radar-field { width: 320px; height: 320px; border: 1px solid rgba(255,0,255,0.2); border-radius: 50%; position: relative; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
-        .user-node { position: absolute; width: 6px; height: 6px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); }
-        .center-node { width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff; z-index: 2; }
+        .radar-field { width: 340px; height: 340px; border: 1px solid rgba(255,0,255,0.1); border-radius: 50%; position: relative; margin: 40px 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,0,255,0.05) 0%, transparent 70%); }
+        .user-node { position: absolute; width: 10px; height: 10px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); cursor: pointer; transform: translate(-50%, -50%); transition: 0.3s; }
+        .user-node:active { transform: scale(3); }
+        .center-node { width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #fff; z-index: 2; }
 
-        .user-list-item { border-bottom: 1px solid #222; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .label { font-size: 0.6rem; letter-spacing: 3px; color: #555; text-transform: uppercase; }
+        /* DISCOVERY LIST */
+        .discovery-header { width: 100%; text-align: left; margin-bottom: 30px; }
+        .match-card { 
+            background: var(--glass); border: 1px solid #222; border-radius: 25px; 
+            width: 100%; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;
+        }
+        .match-avatar { width: 50px; height: 50px; border-radius: 15px; background: linear-gradient(45deg, #222, #444); border: 1px solid var(--pink); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--pink); }
+        .match-info h4 { margin: 0; font-size: 1rem; }
+        .match-info p { margin: 5px 0 0; font-size: 0.65rem; color: #666; letter-spacing: 1px; }
+        .match-tag { display: inline-block; padding: 4px 8px; background: rgba(255,0,255,0.1); border-radius: 5px; font-size: 0.5rem; margin-right: 5px; color: var(--pink); margin-top: 5px;}
+
+        .label { font-size: 0.65rem; letter-spacing: 4px; color: #555; text-transform: uppercase; }
+        .focus-pop { position: fixed; bottom: 40px; background: var(--glass); backdrop-filter: var(--blur); padding: 20px; border-radius: 20px; border: 1px solid var(--pink); width: 85%; z-index: 200; display: none; }
     </style>
 </head>
 <body onload="init()">
 
-    <div id="userDrawer">
-        <h2 class="label">Geofence Radius: 5mi</h2>
-        <div id="geofenceList"></div>
+    <div id="focusPop" class="focus-pop">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="focusName" style="margin:0">User</h3>
+            <span onclick="closeFocus()" style="font-size: 1.2rem;">✕</span>
+        </div>
+        <div id="focusTags" style="margin-top: 10px;"></div>
+        <button class="btn" style="height: 45px; font-size: 0.7rem;" onclick="navTo('screen_discovery')">View Full Profile</button>
     </div>
-    <div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
 
     <div id="screen_splash" class="screen active">
-        <h1 class="logo">WYA</h1>
-        <button class="btn" onclick="navTo('screen_tos')">Initialize</button>
-    </div>
-
-    <div id="screen_tos" class="screen">
-        <div style="background: var(--glass); padding: 30px; border-radius: 20px; border: 1px solid #222;">
-            <p class="label">Legal Protocol</p>
-            <p style="font-size: 0.75rem; color: #888; line-height: 1.6;">Precision location tracking required. Data is anonymized. By entering, you agree to the WYA Observer status.</p>
-            <button class="btn" onclick="navTo('screen_profile')">Accept</button>
-        </div>
+        <h1 style="font-size: 4rem; letter-spacing: 15px; color: var(--pink); text-shadow: 0 0 20px var(--pink);">WYA</h1>
+        <button class="btn" onclick="navTo('screen_profile')">Initialize OS</button>
     </div>
 
     <div id="screen_profile" class="screen">
         <p class="label">Architect Setup</p>
-        <input type="text" id="userName" placeholder="DISPLAY NAME (REQUIRED)" class="input-minimal" style="width: 100%; max-width: 300px; text-align: center; margin-bottom: 20px; border-color: var(--pink);">
+        <input type="text" id="userName" placeholder="ENTER NAME" style="background: transparent; border: none; border-bottom: 1px solid var(--pink); color: #fff; width: 100%; text-align: center; padding: 15px; font-size: 1.2rem; font-weight: 800; margin: 20px 0;">
         
-        <div class="tag-grid" id="tagGrid"></div>
-        
-        <div class="custom-tag-box">
-            <input type="text" id="customTagInput" placeholder="ADD CUSTOM TAG" class="input-minimal">
-            <button onclick="addCustomTag()" style="background: transparent; border: 1px solid var(--pink); color: var(--pink); border-radius: 8px; padding: 0 15px;">+</button>
+        <p class="label">Primary Intent</p>
+        <div class="intent-grid">
+            <div class="intent-card" onclick="setIntent('SOCIAL', this)"><span>👋</span><label>Social</label></div>
+            <div class="intent-card" onclick="setIntent('RELATIONSHIP', this)"><span>❤️</span><label>Relationship</label></div>
+            <div class="intent-card" onclick="setIntent('NETWORKING', this)"><span>💼</span><label>Business</label></div>
+            <div class="intent-card" onclick="setIntent('VIBE', this)"><span>✨</span><label>Just Vibe</label></div>
         </div>
         
-        <button class="btn" onclick="validateAndGo()">Sync to Radar</button>
+        <button class="btn" onclick="validate()">Sync to Radar</button>
     </div>
 
     <div id="screen_radar" class="screen">
         <div class="top-nav">
-            <div class="nav-icon" onclick="toggleDrawer()">☰ Users</div>
+            <div class="nav-icon" onclick="navTo('screen_discovery')">📜</div>
             <div class="nav-icon" onclick="hardReset()">✕</div>
         </div>
+        <p class="label" id="myIntentDisplay">Searching...</p>
+        <div class="radar-field" id="field"><div class="center-node"></div></div>
+        <button class="btn btn-outline" onclick="navTo('screen_discovery')">Discover All Nodes</button>
+    </div>
 
-        <p class="label" id="activeName">Architect</p>
+    <div id="screen_discovery" class="screen">
+        <div class="top-nav" style="background: rgba(0,0,0,0.8); width: 100%; padding: 50px 25px 20px; position: sticky; top: 0;">
+            <div class="nav-icon" onclick="navTo('screen_radar')">←</div>
+            <h2 class="label" style="margin:0">Discovery List</h2>
+            <div class="nav-icon" onclick="hardReset()">✕</div>
+        </div>
         
-        <div class="radar-field" id="field">
-            <div class="center-node"></div>
+        <div class="discovery-header">
+            <h2 id="matchTitle" style="margin: 20px 0 5px;">Matches Found</h2>
+            <p class="label" style="color: var(--pink)">Filtered by your Intent</p>
         </div>
 
-        <div style="margin-top: 40px; text-align: center;">
-            <div style="color: var(--green); font-size: 0.7rem; font-weight: 900; letter-spacing: 2px;">● GEOFENCE ACTIVE</div>
-            <p id="coordDisplay" style="font-size: 0.5rem; color: #333; font-family: monospace; margin-top: 10px;"></p>
-        </div>
+        <div id="matchList" style="width: 100%;"></div>
     </div>
 
     <script>
-        let availableTags = ["NIGHTLIFE", "GYM", "GAMING", "STUDY", "LOUNGE", "BEACH"];
-        let selectedTags = [];
-        let mockUsers = ["User_77", "User_04", "Ghost_One", "Viper_Node", "Alpha_Move"];
+        let currentIntent = "";
+        let mockUsers = [
+            { name: "Nova_01", intent: "SOCIAL", tags: ["Nightlife", "Gym"], dist: "0.2" },
+            { name: "Architect_X", intent: "RELATIONSHIP", tags: ["Gaming", "Study"], dist: "0.5" },
+            { name: "Viper_Node", intent: "NETWORKING", tags: ["SaaS", "Crypto"], dist: "0.8" },
+            { name: "Jade_Sky", intent: "SOCIAL", tags: ["Dining", "Lounge"], dist: "1.1" },
+            { name: "Ghost_One", intent: "RELATIONSHIP", tags: ["Concerts", "Travel"], dist: "1.4" }
+        ];
 
         function init() {
-            renderTags();
-            if(localStorage.getItem('wya_demo_final')) {
-                navTo('screen_radar');
-            }
+            if(localStorage.getItem('wya_v39_ready')) navTo('screen_radar');
+        }
+
+        function setIntent(val, el) {
+            currentIntent = val;
+            document.querySelectorAll('.intent-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function validate() {
+            const name = document.getElementById('userName').value;
+            if(!name || !currentIntent) return alert("Name and Intent required.");
+            localStorage.setItem('wya_v39_ready', 'true');
+            localStorage.setItem('wya_name', name);
+            localStorage.setItem('wya_intent', currentIntent);
+            navTo('screen_radar');
         }
 
         function navTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'screen_radar') buildRadar();
-        }
-
-        function renderTags() {
-            const container = document.getElementById('tagGrid');
-            container.innerHTML = '';
-            availableTags.forEach(t => {
-                const div = document.createElement('div');
-                div.className = `tag ${selectedTags.includes(t) ? 'selected' : ''}`;
-                div.innerText = t;
-                div.onclick = () => {
-                    if(selectedTags.includes(t)) selectedTags = selectedTags.filter(i => i !== t);
-                    else selectedTags.push(t);
-                    renderTags();
-                };
-                container.appendChild(div);
-            });
-        }
-
-        function addCustomTag() {
-            const input = document.getElementById('customTagInput');
-            if(input.value.trim() !== "") {
-                availableTags.push(input.value.toUpperCase());
-                selectedTags.push(input.value.toUpperCase());
-                input.value = "";
-                renderTags();
-            }
-        }
-
-        function validateAndGo() {
-            const name = document.getElementById('userName').value;
-            if(!name || name.trim() === "") return alert("Display name is required.");
-            if(selectedTags.length === 0) return alert("Select at least one interest.");
-            
-            localStorage.setItem('wya_demo_final', 'true');
-            localStorage.setItem('wya_name', name);
-            document.getElementById('activeName').innerText = name.toUpperCase();
-            navTo('screen_radar');
+            if(id === 'screen_discovery') buildDiscovery();
+            closeFocus();
         }
 
         function buildRadar() {
             const field = document.getElementById('field');
-            const list = document.getElementById('geofenceList');
+            document.getElementById('myIntentDisplay').innerText = `Intent: ${localStorage.getItem('wya_intent')}`;
             field.querySelectorAll('.user-node').forEach(n => n.remove());
-            list.innerHTML = '';
 
-            mockUsers.forEach(user => {
-                // Add to List
-                const li = document.createElement('div');
-                li.className = 'user-list-item';
-                li.innerHTML = `<span>${user}</span><span style="font-size: 0.6rem; color: var(--pink);">0.${Math.floor(Math.random()*9)}mi</span>`;
-                list.appendChild(li);
-
-                // Add to Radar Field
+            mockUsers.forEach(u => {
                 const node = document.createElement('div');
                 node.className = 'user-node';
                 const angle = Math.random() * Math.PI * 2;
-                const dist = 50 + Math.random() * 100;
-                node.style.left = (160 + Math.cos(angle) * dist) + 'px';
-                node.style.top = (160 + Math.sin(angle) * dist) + 'px';
+                const dist = 60 + Math.random() * 100;
+                node.style.left = (170 + Math.cos(angle) * dist) + 'px';
+                node.style.top = (170 + Math.sin(angle) * dist) + 'px';
+                node.onclick = (e) => {
+                    e.stopPropagation();
+                    focusNode(u);
+                };
                 field.appendChild(node);
             });
-
-            if(navigator.geolocation) {
-                navigator.geolocation.watchPosition(p => {
-                    document.getElementById('coordDisplay').innerText = `${p.coords.latitude.toFixed(4)} / ${p.coords.longitude.toFixed(4)}`;
-                });
-            }
         }
 
-        function toggleDrawer() {
-            document.getElementById('userDrawer').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('open');
+        function focusNode(u) {
+            const pop = document.getElementById('focusPop');
+            document.getElementById('focusName').innerText = u.name;
+            const tagContainer = document.getElementById('focusTags');
+            tagContainer.innerHTML = u.tags.map(t => `<span class="match-tag">${t}</span>`).join('');
+            pop.style.display = 'block';
+        }
+
+        function closeFocus() { document.getElementById('focusPop').style.display = 'none'; }
+
+        function buildDiscovery() {
+            const list = document.getElementById('matchList');
+            const myIntent = localStorage.getItem('wya_intent');
+            list.innerHTML = '';
+            
+            // Sort: Matches current intent first
+            const sorted = [...mockUsers].sort((a,b) => (a.intent === myIntent ? -1 : 1));
+
+            sorted.forEach(u => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerHTML = `
+                    <div class="match-avatar">${u.name[0]}</div>
+                    <div class="match-info">
+                        <h4>${u.name} ${u.intent === myIntent ? '🔥' : ''}</h4>
+                        <p>${u.dist} MILES • ${u.intent}</p>
+                        <div>${u.tags.map(t => `<span class="match-tag">${t}</span>`).join('')}</div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
         }
 
         function hardReset() {
-            if(confirm("TERMINATE ARCHITECT SESSION?")) {
-                localStorage.clear();
-                location.reload();
-            }
+            if(confirm("TERMINATE SESSION?")) { localStorage.clear(); location.reload(); }
         }
     </script>
 </body>
