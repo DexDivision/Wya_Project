@@ -11,123 +11,112 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA V3.4.0 - PERSISTENCE</title>
+    <title>WYA V3.5.0 - PROXIMITY</title>
     <style>
         :root { 
-            --bg: #000; 
-            --neon-pink: #ff00ff; 
-            --glow-pink: 0 0 15px var(--neon-pink); 
-            --btn-glow: 0 0 25px var(--neon-pink);
+            --bg: #000; --neon-pink: #ff00ff; --glow-pink: 0 0 15px var(--neon-pink); 
+            --neon-green: #00ff41; --glow-green: 0 0 10px var(--neon-green);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
+        body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
         
-        #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; opacity: 0.7; }
+        #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; opacity: 0.6; }
 
-        .screen { 
-            display: none; 
-            height: 100vh; width: 100vw; 
-            flex-direction: column; align-items: center; justify-content: center; 
-            padding: 40px 20px; 
-            position: absolute; top: 0; left: 0;
-        }
+        .screen { display: none; height: 100vh; width: 100vw; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: absolute; }
         .active { display: flex; }
 
-        .logo { font-size: 4.5rem; color: var(--neon-pink); text-shadow: var(--glow-pink); letter-spacing: 12px; font-weight: 900; margin: 0; }
+        .logo { font-size: 4rem; color: var(--neon-pink); text-shadow: var(--glow-pink); letter-spacing: 12px; font-weight: 900; }
+        .btn-primary { height: 65px; border-radius: 18px; font-size: 1rem; font-weight: 900; border: 2px solid var(--neon-pink); background: transparent; color: var(--neon-pink); width: 100%; max-width: 300px; box-shadow: 0 0 20px var(--neon-pink); cursor: pointer; text-transform: uppercase; margin-top: 20px; }
+
+        /* RADAR UI */
+        .radar-container { width: 100%; max-width: 350px; text-align: center; }
+        .status-pill { background: rgba(0, 255, 65, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 6px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; display: inline-block; margin-bottom: 30px; text-shadow: var(--glow-green); box-shadow: var(--glow-green); }
         
-        .btn-primary { 
-            height: 65px; border-radius: 18px; 
-            font-size: 1.1rem; font-weight: 900; 
-            border: 2px solid var(--neon-pink); 
-            background: transparent; color: var(--neon-pink); 
-            width: 100%; max-width: 320px; 
-            box-shadow: var(--btn-glow); 
-            margin-top: 30px; cursor: pointer;
-            text-transform: uppercase;
-        }
+        .friend-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 25px; width: 100%; margin-top: 20px; position: relative; overflow: hidden; }
+        .friend-name { font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; margin: 0; }
+        .distance-display { font-size: 2.5rem; font-weight: 900; color: var(--neon-pink); text-shadow: var(--glow-pink); margin: 10px 0; }
+        .unit { font-size: 0.8rem; color: #444; letter-spacing: 2px; }
 
-        .auth-container { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        .btn-auth { 
-            height: 50px; border-radius: 12px; border: 1px solid #333; 
-            background: #111; color: #FFF; font-weight: 700; font-size: 0.9rem;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-
-        .radar-status { color: #00ff41; font-weight: 900; letter-spacing: 2px; font-size: 0.7rem; margin-bottom: 20px; text-shadow: 0 0 10px #00ff41; }
-        .reset-link { margin-top: 40px; color: #444; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+        .reset-btn { margin-top: 50px; color: #333; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
     </style>
 </head>
-<body onload="startupCheck()">
-    <div id="versionTag">FAITH_OS_V3.4.0</div>
+<body onload="startup()">
+    <div id="versionTag">FAITH_OS_V3.5.0</div>
 
     <div id="screen_splash" class="screen active">
         <h1 class="logo">WYA</h1>
-        <button class="btn-primary" onclick="navTo('screen_auth')">Initialize OS</button>
-    </div>
-
-    <div id="screen_auth" class="screen">
-        <h2 style="letter-spacing: 5px; font-size: 0.9rem; color: var(--neon-pink);">IDENTITY BRIDGE</h2>
-        <div class="auth-container">
-            <div class="btn-auth" onclick="finalizeAuth('APPLE')">CONTINUE WITH APPLE</div>
-            <div class="btn-auth" onclick="finalizeAuth('INSTAGRAM')">CONTINUE WITH INSTAGRAM</div>
-            <div class="btn-auth" onclick="finalizeAuth('X')">CONTINUE WITH X</div>
-        </div>
+        <button class="btn-primary" onclick="navTo('screen_radar')">Initialize Radar</button>
     </div>
 
     <div id="screen_radar" class="screen">
-        <div class="radar-status">● SYSTEM LIVE</div>
-        <h2 id="userDisplay" style="font-size: 1.5rem; margin-bottom: 5px;">ARCHITECT</h2>
-        <p style="color: #666; font-size: 0.8rem;">Intelligence ID: G-DQF0GRW2WG</p>
-        
-        <div id="locationData" style="font-size: 0.7rem; color: var(--neon-pink); margin-top: 20px; font-family: monospace;">
-            Awaiting GPS handshake...
-        </div>
+        <div class="radar-container">
+            <div class="status-pill">SYSTEM ACTIVE</div>
+            
+            <div class="friend-card">
+                <p style="font-size: 0.6rem; color: #666; margin-bottom: 5px; letter-spacing: 2px;">NEAREST NODE</p>
+                <h2 class="friend-name">GHOST_ONE</h2>
+                <div class="distance-display" id="distText">--.-</div>
+                <div class="unit">MILES AWAY</div>
+            </div>
 
-        <div class="reset-link" onclick="hardReset()">Deactivate Session</div>
+            <div id="coordDisplay" style="margin-top: 25px; font-size: 0.6rem; font-family: monospace; color: #333;">
+                SYNCING GPS...
+            </div>
+
+            <div class="reset-btn" onclick="hardReset()">Deactivate Session</div>
+        </div>
     </div>
 
     <script>
-        function startupCheck() {
-            // Memory Check: Did the user already sign in?
-            const sessionActive = localStorage.getItem('wya_active');
-            if(sessionActive === 'true') {
+        // MOCK DATA: A "Friend" sitting roughly 5 miles away
+        let ghostLat, ghostLon;
+
+        function startup() {
+            if(localStorage.getItem('wya_v35_active')) {
                 navTo('screen_radar');
-                requestGPS();
+                startTracking();
             }
         }
 
         function navTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            
-            // Log screen change to Google Analytics
-            if(typeof gtag === 'function') {
-                gtag('event', 'screen_view', { 'screen_name': id });
-            }
+            localStorage.setItem('wya_v35_active', 'true');
+            if(id === 'screen_radar') startTracking();
         }
 
-        function finalizeAuth(provider) {
-            localStorage.setItem('wya_active', 'true');
-            localStorage.setItem('wya_provider', provider);
-            navTo('screen_radar');
-            requestGPS();
-        }
-
-        function requestGPS() {
+        function startTracking() {
             if ("geolocation" in navigator) {
-                navigator.geolocation.watchPosition((position) => {
-                    const lat = position.coords.latitude.toFixed(4);
-                    const lon = position.coords.longitude.toFixed(4);
-                    document.getElementById('locationData').innerText = `LAT: ${lat} | LON: ${lon}`;
-                    
-                    // Track that GPS is working
-                    if(typeof gtag === 'function') {
-                        gtag('event', 'gps_sync', { 'lat': lat, 'lon': lon });
+                navigator.geolocation.watchPosition((pos) => {
+                    const lat1 = pos.coords.latitude;
+                    const lon1 = pos.coords.longitude;
+
+                    // Generate ghost location once
+                    if(!ghostLat) {
+                        ghostLat = lat1 + 0.07; // ~5 miles North
+                        ghostLon = lon1 + 0.07; // ~5 miles East
                     }
-                }, (err) => {
-                    document.getElementById('locationData').innerText = "GPS HANDSHAKE DENIED";
+
+                    const dist = calculateDistance(lat1, lon1, ghostLat, ghostLon);
+                    document.getElementById('distText').innerText = dist.toFixed(1);
+                    document.getElementById('coordDisplay').innerText = `MY_POS: ${lat1.toFixed(4)}, ${lon1.toFixed(4)}`;
+                    
+                    if(typeof gtag === 'function') {
+                        gtag('event', 'proximity_update', { 'distance': dist });
+                    }
                 });
             }
+        }
+
+        // HAVERSINE FORMULA: The Math of the Radar
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; // Earth's radius in Miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
 
         function hardReset() {
