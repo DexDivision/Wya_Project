@@ -39,7 +39,18 @@
         .logo { font-size: 4rem; font-weight: 900; letter-spacing: 10px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
         .tagline { color: var(--neon-pink); font-size: 0.9rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
 
-        /* FORMS & INPUTS */
+        /* RADAR UI */
+        .radar-container { position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; margin: 20px 0; }
+        .radar-circle { position: absolute; width: 100%; height: 100%; border: 2px solid var(--neon-pink); border-radius: 50%; opacity: 0.3; box-shadow: var(--glow-pink); }
+        .radar-pulse { position: absolute; width: 100%; height: 100%; border: 4px solid var(--neon-pink); border-radius: 50%; animation: pulse 2s infinite; box-shadow: var(--glow-pink); }
+        .radar-center { width: 15px; height: 15px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--btn-glow-pink); z-index: 5; }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.1); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        /* FORM & INPUTS */
         .form-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .input-field {
             width: 100%; height: 55px; background: #111; border: 2px solid #333; 
@@ -48,23 +59,6 @@
         }
         .input-field:focus { border-color: var(--neon-pink); box-shadow: var(--glow-pink); }
         textarea.input-field { height: 100px; padding: 15px; resize: none; }
-
-        /* RADAR UI */
-        .radar-container { position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; }
-        .radar-circle { 
-            position: absolute; width: 100%; height: 100%; border: 2px solid var(--neon-pink); 
-            border-radius: 50%; opacity: 0.3; box-shadow: var(--glow-pink);
-        }
-        .radar-pulse { 
-            position: absolute; width: 100%; height: 100%; border: 4px solid var(--neon-pink); 
-            border-radius: 50%; animation: pulse 2s infinite; box-shadow: var(--glow-pink);
-        }
-        .radar-center { width: 15px; height: 15px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--btn-glow-pink); z-index: 5; }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.1); opacity: 1; }
-            100% { transform: scale(1.2); opacity: 0; }
-        }
 
         /* BUTTONS */
         .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
@@ -86,7 +80,7 @@
         .gmail { border-color: var(--gmail); box-shadow: 0 0 10px var(--gmail); }
 
         .tag-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
-        .tag { padding: 10px 18px; border: 1.5px solid #444; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+        .tag { padding: 10px 18px; border: 1.5px solid #444; border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: #888; cursor: pointer; transition: 0.2s; }
         .tag.selected { border-color: var(--neon-pink); color: var(--neon-pink); box-shadow: var(--glow-pink); }
 
         .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; cursor: pointer; text-align: center; }
@@ -155,13 +149,13 @@
                 <div class="tag" onclick="this.classList.toggle('selected')">Developer</div>
                 <div class="tag" onclick="this.classList.toggle('selected')">First Principles</div>
             </div>
-            <button class="btn btn-pink" onclick="navigate('mapScreen')">Activate Radar</button>
+            <button class="btn btn-pink" onclick="finishOnboarding()">Activate Radar</button>
         </div>
         <div></div>
     </div>
 
     <div id="mapScreen" class="screen hidden">
-        <div class="header"><h1 class="logo" style="font-size: 2.5rem;">RADAR</h1><p class="tagline">Scanning Intent...</p></div>
+        <div class="header"><h1 class="logo" style="font-size: 2.5rem;">RADAR</h1><p class="tagline">Live Lobby Active</p></div>
         
         <div class="radar-container">
             <div class="radar-circle"></div>
@@ -171,7 +165,6 @@
         </div>
 
         <div class="btn-group">
-            <div style="text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 10px;">DASHBOARD PREVIEW</div>
             <button class="btn btn-pink" onclick="navigate('landingScreen')">Logout</button>
         </div>
     </div>
@@ -188,6 +181,12 @@
         function nextOnboarding() {
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
+        }
+
+        function finishOnboarding() {
+            // FIX: Directing from Setup Finish to Map Screen instead of Main Menu
+            alert("Profile 100% Complete. Welcome to the Network.");
+            navigate('mapScreen'); 
         }
 
         function socialAuth(provider) { alert("Handshake with " + provider); setTimeout(() => { navigate('onboardingScreen'); }, 1000); }
