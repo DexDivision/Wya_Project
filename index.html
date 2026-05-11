@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WYA - F.A.I.T.H. Alpha</title>
+    <title>WYA - Find The Move</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
@@ -13,7 +13,7 @@
     <style>
         :root { 
             --neon-cyan: #00ffff; --neon-pink: #ff00ff; 
-            --glass: rgba(0, 0, 0, 0.8); --bg: #000;
+            --glass: rgba(0, 0, 0, 0.85); --bg: #000;
         }
 
         html, body { 
@@ -27,132 +27,152 @@
         /* Search Bar UI */
         #search-container {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 400px; z-index: 5000; display: none;
+            width: 92%; max-width: 450px; z-index: 5000; display: none;
         }
         .search-bar {
-            width: 100%; padding: 15px 25px; border-radius: 30px;
-            background: var(--glass); backdrop-filter: blur(20px);
+            width: 100%; padding: 18px 25px; border-radius: 35px;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(25px);
             border: 1px solid var(--neon-cyan); color: #fff;
-            box-shadow: 0 0 20px rgba(0,255,255,0.2); font-size: 1rem;
+            box-shadow: 0 0 25px rgba(0,255,255,0.15); font-size: 1rem;
             outline: none; box-sizing: border-box;
         }
 
         /* UI Overlays */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); backdrop-filter: blur(40px);
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
             z-index: 10000; display: flex; justify-content: center; align-items: center;
         }
 
         .glass-card {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 40px; padding: 30px; text-align: center; width: 90%; max-width: 400px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 45px; padding: 40px 30px; text-align: center; width: 88%; max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 20px; font-size: 1.3rem; }
+        /* Branding */
+        .brand-logo { font-size: 5rem; font-weight: 900; letter-spacing: -2px; color: #fff; line-height: 1; margin: 0; }
+        .brand-slogan { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: var(--neon-pink); margin-top: 10px; margin-bottom: 30px; }
         
         .primary-btn {
-            background: var(--neon-cyan); color: #000; border: none; padding: 18px;
+            background: var(--neon-cyan); color: #000; border: none; padding: 20px;
             width: 100%; border-radius: 50px; font-weight: 900; text-transform: uppercase; 
-            box-shadow: 0 0 25px var(--neon-cyan); cursor: pointer; margin-top: 15px;
+            box-shadow: 0 0 30px var(--neon-cyan); cursor: pointer; transition: 0.3s;
         }
 
-        /* Tag Cloud (Lifestyle Markers) */
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+        /* Tags & Identity */
+        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 25px; }
         .id-tag {
-            padding: 10px 18px; border-radius: 25px; background: rgba(255,255,255,0.05);
-            font-size: 0.8rem; font-weight: 800; border: 1px solid #333; cursor: pointer; transition: 0.3s;
+            padding: 12px 20px; border-radius: 25px; background: rgba(255,255,255,0.05);
+            font-size: 0.8rem; font-weight: 800; border: 1px solid #333; cursor: pointer; transition: 0.2s;
         }
         .id-tag.active { background: var(--neon-pink); border-color: #fff; box-shadow: 0 0 15px var(--neon-pink); }
 
-        /* Vibe Cards */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        /* Categories */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
         .card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; border-radius: 25px; cursor: pointer;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            padding: 15px; border-radius: 25px; cursor: pointer; text-align: center;
         }
-        .card.selected { background: var(--neon-cyan); color: #000; }
-        .card span { display: block; font-size: 1.2rem; }
+        .card.selected { background: var(--neon-cyan); color: #000; font-weight: 900; }
+        .card span { display: block; font-size: 1.4rem; margin-bottom: 5px; }
+        .card h3 { margin: 0; font-size: 0.6rem; letter-spacing: 1px; }
 
-        /* Faith AI Animation */
-        .ai-status-text { font-family: monospace; font-size: 0.8rem; color: var(--neon-cyan); margin-top: 20px; }
+        /* WYA Engine Animation */
+        .engine-text { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--neon-cyan); margin-top: 25px; letter-spacing: 1px; }
 
         /* Profile Card */
         #profile-card {
             position: fixed; bottom: -100%; left: 0; right: 0;
-            background: var(--glass); backdrop-filter: blur(40px);
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(40px);
             border-top: 2px solid var(--neon-cyan); border-radius: 40px 40px 0 0;
             padding: 40px; z-index: 20000; text-align: center;
             transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #profile-card.active { bottom: 0; }
-        .my-tag-display { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 15px 0; }
-        .tiny-tag { font-size: 0.6rem; padding: 4px 10px; border-radius: 10px; background: var(--neon-pink); font-weight: 900; }
+        .my-tag-display { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 15px 0; }
+        .tiny-tag { font-size: 0.65rem; padding: 5px 12px; border-radius: 12px; background: var(--neon-pink); font-weight: 900; }
 
-        /* Radar Nodes */
+        /* Radar Styling */
         .user-dot {
-            width: 26px; height: 26px; background: #fff; border: 4px solid var(--neon-cyan);
-            border-radius: 50%; box-shadow: 0 0 25px var(--neon-cyan); position: relative;
+            width: 28px; height: 28px; background: #fff; border: 4px solid var(--neon-cyan);
+            border-radius: 50%; box-shadow: 0 0 30px var(--neon-cyan); position: relative;
         }
         .user-dot::after {
-            content: ''; position: absolute; top: -13px; left: -13px; right: -13px; bottom: -13px;
+            content: ''; position: absolute; top: -14px; left: -14px; right: -14px; bottom: -14px;
             border: 2px solid var(--neon-cyan); border-radius: 50%;
             animation: radar-pulse 2s infinite; opacity: 0;
         }
         @keyframes radar-pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(3.5); opacity: 0; } }
 
-        .business-icon { font-size: 1.5rem; color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); cursor: pointer; }
+        .poi-icon { font-size: 1.5rem; color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="search-container"><input type="text" class="search-bar" placeholder="SEARCH INTENT (e.g. Pizza, Coffee, Tech)"></div>
+    <div id="search-container"><input type="text" class="search-bar" placeholder="SEARCH INTENT (e.g. Club, Business, Food)"></div>
 
-    <div id="tos-step" class="overlay"><div class="glass-card"><h1 class="neon-title">F.A.I.T.H.</h1><p style="color: #666; font-size: 0.7rem;">ESTABLISHING CONNECTION...</p><button class="primary-btn" style="background: var(--neon-pink);" onclick="nextStep('tos-step', 'tag-step')">CONSENT</button></div></div>
+    <div id="tos-step" class="overlay">
+        <div class="glass-card">
+            <h1 class="brand-logo">WYA</h1>
+            <p class="brand-slogan">FIND THE MOVE. BE THE MOVE.</p>
+            <button class="primary-btn" onclick="nextStep('tos-step', 'tag-step')">GET STARTED</button>
+        </div>
+    </div>
 
     <div id="tag-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">IDENTITY</h2>
+            <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 5px;">WHO ARE YOU?</h2>
+            <p style="color: #666; font-size: 0.7rem; margin-bottom: 10px;">MATCHING FREQUENCY WITH OTHERS</p>
             <div class="tag-container">
                 <div class="id-tag" onclick="toggleTag(this)">GAMING</div>
                 <div class="id-tag" onclick="toggleTag(this)">ANIME</div>
+                <div class="id-tag" onclick="toggleTag(this)">CREATIVE</div>
                 <div class="id-tag" onclick="toggleTag(this)">FITNESS</div>
                 <div class="id-tag" onclick="toggleTag(this)">BUSINESS</div>
-                <div class="id-tag" onclick="toggleTag(this)">POLITICS</div>
-                <div class="id-tag" onclick="toggleTag(this)">CREATIVE</div>
+                <div class="id-tag" onclick="toggleTag(this)">NIGHTLIFE</div>
                 <div class="id-tag" onclick="toggleTag(this)">TECH</div>
+                <div class="id-tag" onclick="toggleTag(this)">MUSIC</div>
             </div>
-            <button class="primary-btn" onclick="nextStep('tag-step', 'vibe-step')">SET IDENTITY</button>
+            <button class="primary-btn" style="margin-top: 30px;" onclick="nextStep('tag-step', 'vibe-step')">SET IDENTITY</button>
         </div>
     </div>
 
     <div id="vibe-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">VIBE</h2>
+            <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 20px;">WHAT'S THE MOVE?</h2>
             <div class="grid">
                 <div class="card" onclick="selectVibe(this, 'Business')"><span>💼</span><h3>BUSINESS</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Clubbing')"><span>✨</span><h3>CLUBBING</h3></div>
                 <div class="card" onclick="selectVibe(this, 'Social')"><span>🍹</span><h3>SOCIAL</h3></div>
-                <div class="card" onclick="selectVibe(this, 'The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
                 <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANCE</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Platonic')"><span>🤝</span><h3>PLATONIC</h3></div>
+                <div class="card" onclick="selectVibe(this, 'The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
             </div>
-            <button class="primary-btn" onclick="runFaithAI()">CALIBRATE</button>
+            <button class="primary-btn" style="margin-top: 25px;" onclick="runEngine()">SYNC RADAR</button>
         </div>
     </div>
 
-    <div id="faith-ai-step" class="overlay" style="display:none;">
+    <div id="engine-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">FAITH AI</h2>
-            <div style="width: 100%; height: 2px; background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan);"></div>
-            <p id="ai-status" class="ai-status-text">INITIALIZING RADAR...</p>
+            <h1 class="brand-logo" style="font-size: 3rem; color: var(--neon-cyan);">WYA</h1>
+            <div style="width: 100%; height: 2px; background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); margin-top: 20px;"></div>
+            <p id="engine-status" class="engine-text">CALIBRATING SPATIAL DATA...</p>
         </div>
     </div>
 
-    <div id="bio-step" class="overlay" style="display:none;"><div class="glass-card"><h2 class="neon-title">INTENT</h2><textarea id="bio" placeholder="What's the move?" class="auth-input" style="height:100px;"></textarea><button class="primary-btn" onclick="finalizeProfile()">LAUNCH</button></div></div>
+    <div id="bio-step" class="overlay" style="display:none;">
+        <div class="glass-card">
+            <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 20px;">YOUR INTENT</h2>
+            <textarea id="bio" placeholder="Faith AI: Exactly who are you looking for?" class="auth-input" style="height: 120px;"></textarea>
+            <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
+        </div>
+    </div>
 
     <div id="profile-card">
-        <h2 id="card-name" style="color: var(--neon-cyan); margin:0;">Alpha Node</h2>
+        <h2 id="card-name" style="color: var(--neon-cyan); margin: 0; font-weight: 900;">Alpha Founder</h2>
         <div id="card-tags" class="my-tag-display"></div>
-        <p id="card-bio" style="color: #ccc; margin-bottom: 25px;"></p>
+        <p id="card-bio" style="color: #ccc; margin-bottom: 30px; line-height: 1.4;"></p>
         <button class="primary-btn" style="background:#fff; color:#000;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
     </div>
 
@@ -183,15 +203,15 @@
             el.classList.add('selected'); selectedVibe = v;
         }
 
-        function runFaithAI() {
-            nextStep('vibe-step', 'faith-ai-step');
-            const status = document.getElementById('ai-status');
-            const log = ["SCANNING SPATIAL DATA...", "LOCATING GEOFENCES...", "IDENTITY SYNC COMPLETE."];
+        function runEngine() {
+            nextStep('vibe-step', 'engine-step');
+            const status = document.getElementById('engine-status');
+            const log = ["SCANNING LOCAL NODES...", "FILTERING IDENTITY...", "ESTABLISHING GEOFENCE...", "READY."];
             let i = 0;
             const interval = setInterval(() => {
                 status.innerText = log[i]; i++;
-                if (i === log.length) { clearInterval(interval); setTimeout(() => nextStep('faith-ai-step', 'bio-step'), 1000); }
-            }, 800);
+                if (i === log.length) { clearInterval(interval); setTimeout(() => nextStep('engine-step', 'bio-step'), 800); }
+            }, 700);
         }
 
         async function finalizeProfile() {
@@ -207,14 +227,14 @@
                 const userLoc = [pos.coords.longitude, pos.coords.latitude];
                 const map = new mapboxgl.Map({
                     container: 'map', style: 'mapbox://styles/mapbox/dark-v11',
-                    center: userLoc, zoom: 16, pitch: 60
+                    center: userLoc, zoom: 17, pitch: 60
                 });
 
-                // Visual Geofence Layer
+                // Geofence Circle Visualization
                 map.on('load', () => {
                     map.addLayer({
-                        'id': 'geofence-zone', 'type': 'circle', 'source': { 'type': 'geojson', 'data': { 'type': 'Point', 'coordinates': userLoc } },
-                        'paint': { 'circle-radius': 100, 'circle-color': 'var(--neon-cyan)', 'circle-opacity': 0.1, 'circle-stroke-width': 2, 'circle-stroke-color': 'var(--neon-cyan)' }
+                        'id': 'radar-zone', 'type': 'circle', 'source': { 'type': 'geojson', 'data': { 'type': 'Point', 'coordinates': userLoc } },
+                        'paint': { 'circle-radius': 120, 'circle-color': 'var(--neon-cyan)', 'circle-opacity': 0.1, 'circle-stroke-width': 1, 'circle-stroke-color': 'var(--neon-cyan)' }
                     });
                 });
 
@@ -226,17 +246,17 @@
                 };
                 new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
 
-                // Demo Neighbors
-                addDemo(map, userLoc[0] + 0.001, userLoc[1] + 0.001, "Coffee Shop", "fas fa-coffee");
-                addDemo(map, userLoc[0] - 0.001, userLoc[1] - 0.001, "Fitness Center", "fas fa-dumbbell");
+                // Add simulated neighborhood icons
+                addPOI(map, userLoc[0] + 0.0012, userLoc[1] + 0.0008, "Venue", "fas fa-utensils");
+                addPOI(map, userLoc[0] - 0.0011, userLoc[1] - 0.0012, "Social Hub", "fas fa-glass-cheers");
 
             }, () => { alert("GPS REQ"); }, { enableHighAccuracy: true });
         }
 
-        function addDemo(map, lng, lat, name, icon) {
-            const el = document.createElement('div'); el.className = 'business-icon';
+        function addPOI(map, lng, lat, name, icon) {
+            const el = document.createElement('div'); el.className = 'poi-icon';
             el.innerHTML = `<i class="${icon}"></i>`;
-            el.onclick = () => { alert(name + " Geofence Active"); };
+            el.onclick = () => { alert(name + ": High User Density Detected"); };
             new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
         }
     </script>
