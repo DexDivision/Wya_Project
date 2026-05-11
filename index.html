@@ -8,11 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root { 
             --neon-cyan: #00ffff; --neon-pink: #ff00ff; 
             --glass: rgba(0, 0, 0, 0.85); --bg: #000;
+            --meta: #0668E1; --google: #EA4335; --snap: #FFFC00; --insta: #E4405F;
         }
 
         html, body { 
@@ -32,27 +34,42 @@
 
         .glass-card {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 40px; padding: 35px; text-align: center; width: 85%; max-width: 400px;
+            border-radius: 40px; padding: 30px; text-align: center; width: 90%; max-width: 400px;
         }
 
-        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 20px; }
+        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 20px; font-size: 1.5rem; }
         
         .auth-input {
-            width: 100%; padding: 20px; margin-bottom: 15px; border-radius: 20px;
+            width: 100%; padding: 18px; margin-bottom: 12px; border-radius: 18px;
             background: #111; border: 1px solid #333; color: #fff; font-size: 1rem; box-sizing: border-box;
         }
 
         .primary-btn {
-            background: var(--neon-cyan); color: #000; border: none; padding: 20px;
+            background: var(--neon-cyan); color: #000; border: none; padding: 18px;
             width: 100%; border-radius: 50px; font-weight: 900; text-transform: uppercase; 
             box-shadow: 0 0 25px var(--neon-cyan); cursor: pointer; margin-bottom: 10px;
         }
 
         .secondary-btn {
-            background: transparent; color: var(--neon-cyan); border: 2px solid var(--neon-cyan); 
-            padding: 18px; width: 100%; border-radius: 50px; font-weight: 900; text-transform: uppercase;
-            cursor: pointer;
+            background: transparent; color: #fff; border: 1px solid #444; 
+            padding: 15px; width: 100%; border-radius: 50px; font-weight: 700; text-transform: uppercase;
+            cursor: pointer; font-size: 0.8rem; letter-spacing: 1px;
         }
+
+        /* Social Auth Section */
+        .social-divider { margin: 25px 0; color: #555; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; }
+        .social-divider::before, .social-divider::after { content: ""; flex: 1; height: 1px; background: #333; margin: 0 10px; }
+
+        .social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px; }
+        .social-btn {
+            height: 50px; width: 50px; border-radius: 50%; border: none;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.2rem; cursor: pointer; transition: 0.3s;
+        }
+        .social-btn.google { background: #fff; color: #000; }
+        .social-btn.meta { background: var(--meta); color: #fff; }
+        .social-btn.insta { background: var(--insta); color: #fff; }
+        .social-btn.snap { background: var(--snap); color: #000; }
 
         /* Vibe Grid */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
@@ -62,17 +79,6 @@
         }
         .card.selected { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan); }
         .card span { display: block; font-size: 2rem; margin-bottom: 10px; }
-        .card h3 { margin: 0; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
-
-        /* Profile Card */
-        #profile-card {
-            position: fixed; bottom: -100%; left: 0; right: 0;
-            background: var(--glass); backdrop-filter: blur(40px);
-            border-top: 2px solid var(--neon-cyan); border-radius: 40px 40px 0 0;
-            padding: 40px; z-index: 20000; text-align: center;
-            transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #profile-card.active { bottom: 0; }
 
         /* Pulsing Radar Node */
         .user-dot {
@@ -88,7 +94,15 @@
             0% { transform: scale(0.5); opacity: 1; }
             100% { transform: scale(3.5); opacity: 0; }
         }
-        .target-dot { width: 20px; height: 20px; background: var(--neon-pink); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px var(--neon-pink); }
+        
+        #profile-card {
+            position: fixed; bottom: -100%; left: 0; right: 0;
+            background: var(--glass); backdrop-filter: blur(40px);
+            border-top: 2px solid var(--neon-cyan); border-radius: 40px 40px 0 0;
+            padding: 40px; z-index: 20000; text-align: center;
+            transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #profile-card.active { bottom: 0; }
     </style>
 </head>
 <body>
@@ -96,7 +110,7 @@
     <div id="tos-step" class="overlay">
         <div class="glass-card">
             <h1 class="neon-title" style="color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink);">CONSENT</h1>
-            <p style="color: #888; margin-bottom: 30px;">0.8s High-Accuracy Tracking Active.</p>
+            <p style="color: #888; font-size: 0.8rem; margin-bottom: 30px;">0.8s High-Accuracy Intent Tracking Enabled.</p>
             <button class="primary-btn" style="background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
         </div>
     </div>
@@ -108,7 +122,16 @@
             <input type="password" id="password" placeholder="Password" class="auth-input">
             
             <button class="primary-btn" onclick="handleAuth('signup')">CREATE ACCOUNT</button>
-            <button class="secondary-btn" onclick="handleAuth('login')">SIGN IN</button>
+            <button class="secondary-btn" style="border: none; margin-bottom: 5px;" onclick="handleAuth('login')">Already a member? Sign In</button>
+
+            <div class="social-divider">OR CONNECT WITH</div>
+
+            <div class="social-grid">
+                <button class="social-btn google" onclick="socialDemo('Google')"><i class="fab fa-google"></i></button>
+                <button class="social-btn meta" onclick="socialDemo('Meta')"><i class="fab fa-facebook-f"></i></button>
+                <button class="social-btn insta" onclick="socialDemo('Instagram')"><i class="fab fa-instagram"></i></button>
+                <button class="social-btn snap" onclick="socialDemo('Snapchat')"><i class="fab fa-ghost"></i></button>
+            </div>
         </div>
     </div>
 
@@ -118,8 +141,6 @@
             <div class="grid">
                 <div class="card" id="vibe-business" onclick="selectVibe('Business/Faith')"><span>💼</span><h3>BUSINESS</h3></div>
                 <div class="card" id="vibe-move" onclick="selectVibe('The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
-                <div class="card" id="vibe-flash" onclick="selectVibe('Flash Burns')"><span>🍕</span><h3>FLASH BURNS</h3></div>
-                <div class="card" id="vibe-discovery" onclick="selectVibe('Discovery')"><span>🎲</span><h3>SURPRISE ME</h3></div>
             </div>
             <button class="primary-btn" style="margin-top: 30px;" onclick="nextStep('vibe-step', 'bio-step')">NEXT</button>
         </div>
@@ -127,7 +148,7 @@
 
     <div id="bio-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">YOUR BIO</h2>
+            <h2 class="neon-title">YOUR INTENT</h2>
             <textarea id="bio" placeholder="Ex: Looking for B2B partners..." class="auth-input" style="height: 120px;"></textarea>
             <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
         </div>
@@ -135,7 +156,7 @@
 
     <div id="profile-card">
         <div style="color: var(--neon-pink); font-weight: 900; margin-bottom: 10px;">NODE DATA</div>
-        <h2 id="card-name" class="neon-text">Alpha Founder</h2>
+        <h2 id="card-name" style="color: var(--neon-cyan);">Alpha Founder</h2>
         <p id="card-bio" style="color: #ccc; margin-bottom: 25px;"></p>
         <button class="primary-btn" style="background:#fff; color:#000;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
     </div>
@@ -157,10 +178,8 @@
         async function handleAuth(type) {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
             if (type === 'signup') {
-                const { error } = await _supabase.auth.signUp({ email, password });
-                if (error) { alert(error.message); return; }
+                await _supabase.auth.signUp({ email, password });
             } else {
                 const { error } = await _supabase.auth.signInWithPassword({ email, password });
                 if (error) { alert(error.message); return; }
@@ -168,11 +187,16 @@
             nextStep('auth-step', 'vibe-step');
         }
 
+        function socialDemo(platform) {
+            alert(platform + " Login: Active for Monday Demo. This bypasses email for instant onboarding.");
+            nextStep('auth-step', 'vibe-step');
+        }
+
         function selectVibe(vibe) {
             selectedVibe = vibe;
             document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            const idMap = {'Business/Faith':'vibe-business', 'The Move':'vibe-move', 'Flash Burns':'vibe-flash', 'Discovery':'vibe-discovery'};
-            document.getElementById(idMap[vibe]).classList.add('selected');
+            const idMap = {'Business/Faith':'vibe-business', 'The Move':'vibe-move'};
+            if (document.getElementById(idMap[vibe])) document.getElementById(idMap[vibe]).classList.add('selected');
         }
 
         async function finalizeProfile() {
@@ -200,20 +224,7 @@
                 };
                 new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
 
-                // Demo Target Near Magic Tree
-                addNode(map, userLoc[0] + 0.0004, userLoc[1] + 0.0004, "Venue Partner", "Check-in active.");
-
             }, () => { alert("Enable GPS!"); }, { enableHighAccuracy: true });
-        }
-
-        function addNode(map, loc, name, b) {
-            const el = document.createElement('div'); el.className = 'target-dot';
-            el.onclick = () => {
-                document.getElementById('card-name').innerText = name;
-                document.getElementById('card-bio').innerText = b;
-                document.getElementById('profile-card').classList.add('active');
-            };
-            new mapboxgl.Marker(el).setLngLat([loc, loc+0.0001]).addTo(map); // Simplified for demo
         }
     </script>
 </body>
