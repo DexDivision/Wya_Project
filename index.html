@@ -2,41 +2,125 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WYA</title>
     <style>
-        /* RESTORED ORIGINAL UI STYLES */
-        :root { --bg: #000; --text: #FFF; --accent: #888; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; }
+        :root { 
+            --bg: #000; 
+            --neon-pink: #ff00ff; 
+            --accent: #888; 
+            --glow: 0 0 15px var(--neon-pink);
+            --btn-glow: 0 0 20px var(--neon-pink);
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            color: #FFF; 
+            font-family: -apple-system, sans-serif; 
+            overflow: hidden; 
+            height: 100vh;
+            width: 100vw;
+        }
         
-        .screen { height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 50px 20px; box-sizing: border-box; transition: transform 0.5s ease-in-out; position: absolute; }
+        .screen { 
+            height: 100%; 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 60px 20px; 
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: absolute; 
+            top: 0;
+            left: 0;
+        }
         
-        /* TRANSITION LOGIC */
-        .hidden { transform: translateX(100%); }
-        .active { transform: translateX(0); }
+        .hidden { transform: translateX(100%); opacity: 0; }
+        .active { transform: translateX(0); opacity: 1; }
 
-        .header { text-align: center; margin-top: 50px; }
-        .logo { font-size: 3rem; font-weight: 900; letter-spacing: 5px; margin: 0; }
-        .tagline { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; }
+        /* HEADER & SLOGAN */
+        .header { text-align: center; margin-top: 40px; }
+        .logo { 
+            font-size: 4rem; 
+            font-weight: 900; 
+            letter-spacing: 8px; 
+            margin: 0; 
+            color: var(--neon-pink); 
+            text-shadow: var(--glow);
+        }
+        .tagline { 
+            color: #FFF; 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            margin-top: 10px; 
+            letter-spacing: 3px;
+            font-weight: 600;
+        }
 
-        .btn-group { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px; }
-        .btn { height: 55px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .btn-primary { background: #FFF; color: #000; }
-        .btn-secondary { background: transparent; color: #FFF; border: 1.5px solid #FFF; }
+        /* GLOWING BUTTON ARCHITECTURE */
+        .btn-group { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 20px; }
+        
+        .btn { 
+            height: 60px; 
+            border-radius: 15px; 
+            font-size: 1.1rem; 
+            font-weight: 800; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-decoration: none;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
 
-        /* ADDED SOCIAL GRID (Maintained original aesthetic) */
-        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
-        .btn-social { height: 45px; background: #111; color: #FFF; border: 1px solid #333; font-size: 0.8rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-primary { 
+            background: transparent; 
+            color: var(--neon-pink); 
+            border: 3px solid var(--neon-pink); 
+            box-shadow: var(--btn-glow);
+            text-shadow: var(--glow);
+        }
 
-        .footer-link { color: var(--accent); font-size: 0.9rem; text-decoration: none; margin-bottom: 30px; }
-        .footer-link span { color: #FFF; font-weight: bold; }
+        .btn-secondary { 
+            background: transparent; 
+            color: #FFF; 
+            border: 2px solid #FFF; 
+        }
+
+        /* SOCIAL GRID */
+        .social-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            width: 100%; 
+            margin-top: 15px; 
+        }
+        
+        .btn-social { 
+            height: 50px; 
+            background: rgba(255, 255, 255, 0.05); 
+            color: #FFF; 
+            border: 1px solid #333; 
+            font-size: 0.85rem; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
+
+        .footer-link { color: var(--accent); font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; }
+        .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow); }
     </style>
 </head>
 <body>
 
     <div id="landingScreen" class="screen active">
         <div class="header">
-            <p class="logo">WYA</p>
+            <h1 class="logo">WYA</h1>
             <p class="tagline">Where You At?</p>
         </div>
         <div class="btn-group">
@@ -47,8 +131,8 @@
 
     <div id="authScreen" class="screen hidden">
         <div class="header">
-            <p class="logo">WYA</p>
-            <p class="tagline">Connect with the Network</p>
+            <h1 class="logo" style="font-size: 3rem;">WYA</h1>
+            <p class="tagline">Join the Network</p>
         </div>
 
         <div class="btn-group">
@@ -70,7 +154,6 @@
 
     <script>
         function showAuth() {
-            // Mechanics: Hide landing, show auth
             document.getElementById('landingScreen').classList.add('hidden');
             document.getElementById('authScreen').classList.remove('hidden');
             document.getElementById('authScreen').classList.add('active');
