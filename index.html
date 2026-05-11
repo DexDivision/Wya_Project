@@ -5,27 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WYA - Auth</title>
     <style>
-        :root { --bg: #000; --text: #FFF; --accent: #888; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; }
+        :root { --bg: #000; --text: #FFF; --accent: #888; --social-bg: #1A1A1A; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
         
-        .screen { height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 50px 20px; box-sizing: border-box; transition: transform 0.5s ease-in-out; position: absolute; }
-        
-        .hidden { transform: translateX(100%); }
-        .active { transform: translateX(0); }
+        /* SCREEN MANAGEMENT */
+        .screen { height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 20px; box-sizing: border-box; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: absolute; }
+        .hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+        .active { opacity: 1; transform: translateY(0); pointer-events: all; }
 
-        /* HEADER */
-        .header { text-align: center; margin-top: 50px; }
-        .logo { font-size: 3rem; font-weight: 900; letter-spacing: 5px; margin: 0; }
-        .tagline { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; }
+        /* HEADER SECTION */
+        .header { text-align: center; margin-top: 20px; }
+        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: 6px; margin: 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .tagline { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; margin-top: 8px; letter-spacing: 2px; }
 
-        /* BUTTONS */
-        .btn-group { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px; }
-        .btn { height: 55px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        /* PRIMARY ACTIONS */
+        .btn-group { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
+        .btn { height: 50px; border-radius: 10px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
         .btn-primary { background: #FFF; color: #000; }
         .btn-secondary { background: transparent; color: #FFF; border: 1.5px solid #FFF; }
 
+        /* SOCIAL AUTH GRID (Compact Layout) */
+        .social-container { width: 100%; max-width: 380px; margin-top: 20px; }
+        .divider { display: flex; align-items: center; margin: 15px 0; color: #444; font-size: 0.8rem; }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #333; margin: 0 10px; }
+        
+        .social-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-social { height: 45px; background: var(--social-bg); color: #FFF; font-size: 0.85rem; font-weight: 500; border: 1px solid #333; border-radius: 8px; }
+
         /* FOOTER */
-        .footer-link { color: var(--accent); font-size: 0.9rem; text-decoration: none; margin-bottom: 30px; }
+        .footer-link { color: var(--accent); font-size: 0.85rem; text-decoration: none; margin-bottom: 20px; }
         .footer-link span { color: #FFF; font-weight: bold; }
     </style>
 </head>
@@ -33,7 +42,7 @@
 
     <div id="landingScreen" class="screen active">
         <div class="header">
-            <p class="logo">WYA</p>
+            <h1 class="logo">WYA</h1>
             <p class="tagline">Where You At?</p>
         </div>
         <div class="btn-group">
@@ -44,21 +53,41 @@
 
     <div id="authScreen" class="screen hidden">
         <div class="header">
-            <p class="logo">WYA</p>
-            <p class="tagline">Join the Network</p>
+            <h1 class="logo" style="font-size: 2.5rem;">WYA</h1>
+            <p class="tagline">Secure Access</p>
         </div>
+
         <div class="btn-group">
             <button class="btn btn-primary">Create Account</button>
             <button class="btn btn-secondary">Sign In</button>
+            
+            <div class="social-container">
+                <div class="divider">OR CONNECT WITH</div>
+                <div class="social-grid">
+                    <button class="btn btn-social">Apple</button>
+                    <button class="btn btn-social">Google</button>
+                    <button class="btn btn-social">Instagram</button>
+                    <button class="btn btn-social">Snapchat</button>
+                    <button class="btn btn-social">Facebook</button>
+                    <button class="btn btn-social">X (Twitter)</button>
+                </div>
+            </div>
         </div>
-        <a href="#" class="footer-link">Already have an account? <span>Log In</span></a>
+
+        <a href="#" class="footer-link">Already have an account? <span>Sign In</span></a>
     </div>
 
     <script>
         function showAuth() {
-            document.getElementById('landingScreen').classList.add('hidden');
-            document.getElementById('authScreen').classList.remove('hidden');
-            document.getElementById('authScreen').classList.add('active');
+            // Trigger transition logic
+            const landing = document.getElementById('landingScreen');
+            const auth = document.getElementById('authScreen');
+            
+            landing.classList.remove('active');
+            landing.classList.add('hidden');
+            
+            auth.classList.remove('hidden');
+            auth.classList.add('active');
         }
     </script>
 </body>
