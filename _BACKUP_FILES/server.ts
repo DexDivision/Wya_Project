@@ -111,6 +111,7 @@
         const tags = ["Founder", "First Principles", "Engineer", "Gamer", "Anime", "Horny", "Social", "Tech", "Music"];
         
         function initSystem() {
+            // Memory check - uses versioned keys to avoid ghosting
             const auth = localStorage.getItem('V332_AUTH');
             const tos = localStorage.getItem('V332_TOS');
             const prof = localStorage.getItem('V332_PROF');
@@ -128,7 +129,7 @@
             document.getElementById(id).classList.add('active');
             if(id === 'screen_radar') renderNodes();
             
-            // Intelligence Ping
+            // Intelligence Ping: Tracks exactly which screen users are on
             if(typeof gtag === 'function') {
                 gtag('event', 'page_view', { 'page_title': id });
             }
