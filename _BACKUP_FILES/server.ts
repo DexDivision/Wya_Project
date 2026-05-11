@@ -4,7 +4,10 @@ import path from 'path';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve the static index.html file
+/** * TACTICAL LOGIC: 
+ * Since this file lives in _BACKUP_FILES, we use '../' 
+ * to point the server back to the main Wya_Project root.
+ */
 app.use(express.static(path.join(__dirname, '../')));
 
 app.get('*', (req, res) => {
