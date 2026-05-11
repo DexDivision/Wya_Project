@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA V1.7.0</title>
+    <title>WYA V1.7.1</title>
     <style>
         :root { 
             --bg: #000; 
             --neon-pink: #ff00ff; 
             --glow-pink: 0 0 15px var(--neon-pink); 
             --btn-glow-pink: 0 0 25px var(--neon-pink); 
-            --sidebar-bg: rgba(10, 10, 10, 0.95);
+            --sidebar-bg: rgba(5, 5, 5, 0.98);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
         
+        /* Version Stamp */
+        #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.7rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; text-shadow: var(--glow-pink); }
+
         /* Navigation & Screens */
         .screen { height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 20px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; position: absolute; top: 0; left: 0; background: transparent; z-index: 10; }
         .hidden { transform: translateX(100%); opacity: 0; pointer-events: none; z-index: 0; visibility: hidden; }
@@ -26,17 +29,17 @@
         .tagline { color: var(--neon-pink); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
         
         /* Sidebar Styles */
-        #sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: var(--sidebar-bg); border-right: 2px solid var(--neon-pink); transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; padding: 80px 20px; box-shadow: 10px 0 30px rgba(255, 0, 255, 0.1); }
+        #sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: var(--sidebar-bg); border-right: 2px solid var(--neon-pink); transform: translateX(-100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; padding: 80px 20px; box-shadow: 10px 0 30px rgba(255, 0, 255, 0.2); }
         #sidebar.open { transform: translateX(0); }
-        .sidebar-toggle { position: fixed; left: 20px; top: 20px; z-index: 110; font-size: 1.5rem; color: var(--neon-pink); cursor: pointer; text-shadow: var(--glow-pink); background: none; border: none; font-weight: 900; }
-        .user-list-item { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .user-list-item:active { background: rgba(255, 0, 255, 0.1); }
-        .status-dot { width: 8px; height: 8px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); }
+        .sidebar-toggle { position: fixed; left: 20px; top: 15px; z-index: 110; font-size: 1.8rem; color: var(--neon-pink); cursor: pointer; text-shadow: var(--glow-pink); background: none; border: none; font-weight: 900; }
+        .user-list-item { padding: 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        .user-list-item:active { background: rgba(255, 0, 255, 0.2); }
+        .status-dot { width: 10px; height: 10px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); }
 
         /* Compass UI */
-        .compass-container { position: absolute; bottom: 120px; width: 80px; height: 80px; border: 2px solid var(--neon-pink); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: var(--glow-pink); }
-        .compass-needle { width: 2px; height: 40px; background: var(--neon-pink); position: relative; transition: transform 0.2s ease-out; }
-        .compass-needle::after { content: 'N'; position: absolute; top: -20px; left: -5px; font-size: 10px; font-weight: 900; color: var(--neon-pink); }
+        .compass-container { position: absolute; bottom: 120px; width: 85px; height: 85px; border: 2px solid var(--neon-pink); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: var(--glow-pink); background: rgba(0,0,0,0.5); }
+        .compass-needle { width: 3px; height: 45px; background: var(--neon-pink); position: relative; transition: transform 0.2s ease-out; box-shadow: var(--glow-pink); }
+        .compass-needle::after { content: 'N'; position: absolute; top: -20px; left: -4px; font-size: 11px; font-weight: 900; color: var(--neon-pink); }
 
         /* Radar Core */
         .map-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(255, 0, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 255, 0.05) 1px, transparent 1px); background-size: 50px 50px; opacity: 0; z-index: 1; transition: opacity 1s ease; }
@@ -44,11 +47,11 @@
         .radar-container { position: relative; width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; z-index: 20; }
         .radar-circle { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(255, 0, 255, 0.2); border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%); }
         .radar-pulse { position: absolute; width: 100%; height: 100%; border: 2px solid var(--neon-pink); border-radius: 50%; animation: pulse 4s infinite linear; opacity: 0; }
-        .radar-center { width: 10px; height: 10px; background: #FFF; border-radius: 50%; box-shadow: 0 0 20px #FFF; z-index: 30; }
+        .radar-center { width: 12px; height: 12px; background: #FFF; border-radius: 50%; box-shadow: 0 0 20px #FFF; z-index: 30; }
         
-        .user-node { position: absolute; width: 14px; height: 14px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); opacity: 0; animation: fadeIn 0.5s forwards; cursor: pointer; z-index: 40; }
+        .user-node { position: absolute; width: 16px; height: 16px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); opacity: 0; animation: fadeIn 0.5s forwards; cursor: pointer; z-index: 40; }
 
-        /* Buttons & Forms */
+        /* Buttons */
         .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; z-index: 20; }
         .btn { height: 60px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transition: 0.2s; border: none; }
         .btn-pink { background: transparent; color: var(--neon-pink); border: 2px solid var(--neon-pink); box-shadow: var(--btn-glow-pink); text-shadow: var(--glow-pink); width: 100%; }
@@ -58,10 +61,11 @@
     </style>
 </head>
 <body>
+    <div id="versionTag">V1.7.1</div>
+    
     <div id="sidebar">
-        <h2 style="color: var(--neon-pink); text-transform: uppercase; letter-spacing: 3px;">Local Intent</h2>
-        <div id="userList">
-            </div>
+        <h2 style="color: var(--neon-pink); text-transform: uppercase; letter-spacing: 3px; font-size: 1.2rem;">Local Intent</h2>
+        <div id="userList"></div>
     </div>
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -98,8 +102,9 @@
         ];
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            populateSidebar();
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('open');
+            if(sb.classList.contains('open')) populateSidebar();
         }
 
         function populateSidebar() {
@@ -108,7 +113,7 @@
             mockUsers.forEach(user => {
                 const item = document.createElement('div');
                 item.className = 'user-list-item';
-                item.innerHTML = `<div><strong>${user.name}</strong><br><small>${user.dist}</small></div><div class="status-dot"></div>`;
+                item.innerHTML = `<div><strong style="color:var(--neon-pink)">${user.name}</strong><br><small style="color:#888">${user.dist}</small></div><div class="status-dot"></div>`;
                 list.appendChild(item);
             });
         }
@@ -135,8 +140,8 @@
                 const node = document.createElement('div');
                 node.className = 'user-node';
                 const radius = 100 + (Math.random() * 50);
-                const x = 170 + radius * Math.cos(user.angle * Math.PI / 180) - 7;
-                const y = 170 + radius * Math.sin(user.angle * Math.PI / 180) - 7;
+                const x = 170 + radius * Math.cos(user.angle * Math.PI / 180) - 8;
+                const y = 170 + radius * Math.sin(user.angle * Math.PI / 180) - 8;
                 node.style.left = x + 'px';
                 node.style.top = y + 'px';
                 field.appendChild(node);
@@ -146,9 +151,9 @@
         function startCompassSimulation() {
             const needle = document.getElementById('compassNeedle');
             setInterval(() => {
-                const rotation = Math.floor(Math.random() * 10) - 5; 
+                const rotation = Math.floor(Math.random() * 12) - 6; 
                 needle.style.transform = `rotate(${rotation}deg)`;
-            }, 500);
+            }, 400);
         }
     </script>
 </body>
