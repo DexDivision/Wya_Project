@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WYA Live Demo</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #000; font-family: sans-serif; overflow: hidden; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        
+        /* TOS Overlay (Clickwrap Agreement) */
+        #tos-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        #tos-container {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            height: 50vh;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        #tos-container h2 { margin-top: 0; font-size: 1.4em; text-align: center; color: #fff; }
+        #tos-container h3 { color: #007cff; font-size: 0.9em; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        #tos-container p { font-size: 0.85em; color: #aaa; line-height: 1.5; }
+        
+        #agree-btn {
+            background-color: #34c759;
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(52, 199, 89, 0.2);
+            transition: all 0.3s ease;
+        }
+        #agree-btn:active { transform: scale(0.95); }
+
+        /* Alpha Founder Node (User) */
+        .alpha-node {
+            background-color: #007cff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px #007cff;
+            transition: transform 0.8s linear;
+        }
+
+        /* Target Match Node (Stationary) */
+        .target-node {
+            background-color: #ff3b30;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 20px #ff3b30;
+            animation: pulse 1.5s infinite;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Distance HUD */
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #888;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .dist-value { color: #fff; font-size: 1.2em; display: block; margin-top: 5px; }
+
+        /* The UI Button */
+        #ui-controls {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 20;
+        }
+        #poke-btn {
+            background-color: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="tos-overlay">
+        <div id="tos-container">
+            <h2>Terms of Service</h2>
+            <p><strong>Operated by:</strong> Faubel Asset & Innovation Tech Holdings LLC</p>
+            <p>By accessing the WYA network, you agree to the following terms and assume all associated risks.</p>
+            
+            <h3>1. Assumption of Risk</h3>
+            <p>This service facilitates real-world meetups. Your physical interactions are strictly at your own risk. We do not conduct background checks.</p>
+            
+            <h3>2. Dynamic Location Tracking</h3>
+            <p>WYA utilizes real-time location data to execute the Compass Mini-Game and Geofence functionalities. By proceeding, you explicitly consent to this tracking.</p>
+            
+            <h3>3. Network Integrity</h3>
+            <p>Spoofing and bot activity are prohibited. Accounts suspected of manipulation will be silently quarantined into Ghost Lobbies without notice.</p>
+            
+            <h3>4. Liability Limitation</h3>
+            <p>The Company is not liable for real-world interactions, emotional distress, or potential data breaches.</p>
+        </div>
+        <button id="agree-btn">I AGREE & ENTER</button>
+    </div>
+
+    <div id="hud">
+        Compass Status
+        <span id="distance" class="dist-value">Standby</span>
+    </div>
+
+    <div id="ui-controls">
+        <button id="poke-btn">POKE MATCH</button>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+        // Handle TOS Clickwrap Agreement
+        document.getElementById('agree-btn').addEventListener('click', () => {
+            // Fade out and remove the overlay
+            const tosOverlay = document.getElementById('tos-overlay');
+            tosOverlay.style.transition = 'opacity 0.4s ease';
+            tosOverlay.style.opacity = '0';
+            setTimeout(() => {
+                tosOverlay.style.display = 'none';
+            }, 400);
+        });
+
+        const socket = io();
+        mapboxgl.accessToken = 'pk.eyJ1Ijoid3lhLWxpdmUiLCJhIjoiY21wMGZ3MGdxMTdoMDRqb3BwbGVscTRmYiJ9.kuZWQ6cwqaoj5Ziw8lm1Kw'; 
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v11',
+            center: [-80.6628, 41.0245], 
+            zoom: 15,
+            pitch: 60 
+        });
+
+        // Setup Nodes
+        const alphaEl = document.createElement('div');
+        alphaEl.className = 'alpha-node';
+        const alphaMarker = new mapboxgl.Marker(alphaEl)
+            .setLngLat([-80.6628, 41.0245])
+            .addTo(map);
+
+        const targetCoords = [-80.6610, 41.0255]; 
+        const targetEl = document.createElement('div');
+        targetEl.className = 'target-node';
+        new mapboxgl.Marker(targetEl)
+            .setLngLat(targetCoords)
+            .addTo(map);
+
+        // Math Logic
+        function getDistance(coords1, coords2) {
+            const R = 6371e3; 
+            const lat1 = coords1[1] * Math.PI/180;
+            const lat2 = coords2[1] * Math.PI/180;
+            const deltaLat = (coords2[1]-coords1[1]) * Math.PI/180;
+            const deltaLon = (coords2[0]-coords1[0]) * Math.PI/180;
+            const a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+                      Math.cos(lat1) * Math.cos(lat2) *
+                      Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return (R * c * 3.28084).toFixed(0); 
+        }
+
+        let compassActive = false;
+
+        // Interaction Logic: The Pitch Demo
+        const pokeBtn = document.getElementById('poke-btn');
+        pokeBtn.addEventListener('click', () => {
+            pokeBtn.innerText = 'WAITING FOR ACCEPT...';
+            pokeBtn.style.backgroundColor = '#333';
+            pokeBtn.style.color = '#fff';
+            
+            setTimeout(() => {
+                compassActive = true;
+                pokeBtn.innerText = 'COMPASS LINKED';
+                pokeBtn.style.backgroundColor = '#34c759'; 
+                
+                targetEl.style.display = 'block';
+                document.getElementById('hud').style.color = '#ff3b30';
+                document.getElementById('hud').childNodes[0].nodeValue = 'Target Lock ';
+            }, 2000);
+        });
+
+        // Server Updates
+        socket.on('node_joined', (data) => {
+            const userCoords = [data.lon, data.lat];
+            alphaMarker.setLngLat(userCoords);
+            map.panTo(userCoords, { duration: 800 });
+
+            if(compassActive) {
+                const feet = getDistance(userCoords, targetCoords);
+                document.getElementById('distance').innerText = `${feet} FT`;
+            }
+        });
+    </script>
+</body>
+</html>
