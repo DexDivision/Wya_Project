@@ -32,26 +32,22 @@
             padding: 20px; box-sizing: border-box;
         }
 
-        .glass-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 45px; padding: 40px 30px; text-align: center; width: 100%; max-width: 400px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-
-        /* Branding & Text */
+        /* Branding */
         .brand-logo { font-size: 5rem; font-weight: 900; letter-spacing: -2px; color: #fff; line-height: 1; margin: 0; }
-        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 20px; font-size: 1.5rem; }
-        .faith-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 20px; }
+        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center; }
+        .faith-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 30px; text-align: center; }
 
-        /* Input Styling */
+        /* Glowing Text Box - REINSTATED */
         .intent-input {
             width: 100%; padding: 25px; border-radius: 25px;
-            background: rgba(0,255,255,0.05); border: 1px solid var(--neon-cyan);
+            background: rgba(0,255,255,0.05); border: 2px solid var(--neon-cyan);
             color: var(--neon-cyan); font-size: 1.2rem; font-weight: 700;
             text-shadow: 0 0 10px var(--neon-cyan); outline: none;
             box-sizing: border-box; text-align: center; margin-bottom: 30px;
-            box-shadow: inset 0 0 15px rgba(0,255,255,0.1);
+            box-shadow: 0 0 15px rgba(0,255,255,0.2);
+            transition: 0.3s;
         }
+        .intent-input:focus { box-shadow: 0 0 30px rgba(0,255,255,0.4); border-color: #fff; }
         .intent-input::placeholder { color: rgba(0,255,255,0.3); text-shadow: none; }
 
         /* Glowing Buttons */
@@ -60,14 +56,14 @@
             padding: 22px; width: 100%; border-radius: 20px; font-weight: 900;
             text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
             box-shadow: 0 0 20px var(--neon-cyan); transition: 0.3s;
-            font-size: 1.1rem;
+            font-size: 1.1rem; max-width: 350px;
         }
         .glow-btn:active { background: var(--neon-cyan); color: #000; }
 
-        /* Mic Button Styling */
+        /* Mic Toggle Styling */
         .mic-container { margin-bottom: 40px; text-align: center; }
         .mic-circle {
-            width: 110px; height: 110px; border-radius: 50%;
+            width: 100px; height: 100px; border-radius: 50%;
             border: 3px solid var(--neon-cyan); background: rgba(0,255,255,0.05);
             display: flex; justify-content: center; align-items: center;
             color: var(--neon-cyan); font-size: 2.5rem; cursor: pointer;
@@ -77,61 +73,54 @@
         .mic-circle.listening {
             background: var(--neon-pink); border-color: var(--neon-pink);
             color: #fff; box-shadow: 0 0 50px var(--neon-pink);
-            animation: pulse 1.5s infinite;
+            animation: mic-pulse 1.5s infinite;
         }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes mic-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         /* Vibe Grid */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; width: 100%; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; width: 100%; max-width: 400px; }
         .card {
             background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
             padding: 20px; border-radius: 25px; cursor: pointer; text-align: center;
         }
         .card.selected { background: var(--neon-cyan); color: #000; font-weight: 900; }
         
-        /* Radar Engine */
         .engine-text { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--neon-cyan); margin-top: 25px; }
-
-        /* Map UI */
-        #search-container { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 92%; z-index: 5000; display: none; }
-        .search-bar { width: 100%; padding: 18px 25px; border-radius: 35px; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-cyan); color: #fff; outline: none; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <div id="search-container"><input type="text" class="search-bar" placeholder="SEARCH INTENT..."></div>
-
     <div id="tos-step" class="overlay">
         <h1 class="brand-logo" style="margin-bottom:10px;">WYA</h1>
         <p style="color: var(--neon-pink); font-weight: 800; letter-spacing: 4px; margin-bottom: 40px;">FIND THE MOVE.</p>
-        <button class="glow-btn" style="max-width:300px;" onclick="nextStep('tos-step', 'vibe-step')">GET STARTED</button>
+        <button class="glow-btn" onclick="nextStep('tos-step', 'vibe-step')">GET STARTED</button>
     </div>
 
     <div id="vibe-step" class="overlay" style="display:none;">
         <h2 class="neon-title">SELECT VIBE</h2>
-        <div class="grid" style="max-width: 400px;">
+        <div class="grid">
             <div class="card" onclick="selectVibe(this, 'Business')"><span>💼</span><h3>BUSINESS</h3></div>
             <div class="card" onclick="selectVibe(this, 'Clubbing')"><span>✨</span><h3>CLUBBING</h3></div>
             <div class="card" onclick="selectVibe(this, 'Social')"><span>🍹</span><h3>SOCIAL</h3></div>
             <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANCE</h3></div>
         </div>
-        <button class="glow-btn" style="margin-top: 40px; max-width:300px;" onclick="nextStep('vibe-step', 'bio-step')">NEXT</button>
+        <button class="glow-btn" style="margin-top: 40px;" onclick="nextStep('vibe-step', 'bio-step')">NEXT</button>
     </div>
 
     <div id="bio-step" class="overlay" style="display:none;">
         <h1 style="color: var(--neon-pink); font-weight: 900; letter-spacing: 3px; font-size: 2rem; margin-bottom: 10px;">YOUR INTENT</h1>
         <p class="faith-label">WHICH FAITH AI FREQUENCY ARE YOU BROADCASTING?</p>
 
-        <input type="text" id="intent-display" class="intent-input" placeholder="Ex: Looking for romance">
+        <input type="text" id="intent-display" class="intent-input" placeholder="Type or Speak your intent...">
 
         <div class="mic-container">
-            <div id="mic-trigger" class="mic-circle" onclick="startVoiceInput()">
+            <div id="mic-trigger" class="mic-circle" onclick="toggleVoiceInput()">
                 <i class="fas fa-microphone"></i>
             </div>
-            <p style="color: var(--neon-cyan); font-weight: 800; letter-spacing: 2px; font-size: 0.9rem;">SPEAK YOUR INTENT</p>
+            <p id="mic-status" style="color: var(--neon-cyan); font-weight: 800; letter-spacing: 2px; font-size: 0.8rem;">TAP TO SPEAK</p>
         </div>
 
-        <button class="glow-btn" style="max-width: 350px;" onclick="runEngine()">CALIBRATE RADAR</button>
+        <button class="glow-btn" onclick="runEngine()">CALIBRATE RADAR</button>
         <p style="color: var(--neon-cyan); font-size: 0.7rem; margin-top: 20px; font-weight: 800; letter-spacing: 2px;">LOCKED.</p>
     </div>
 
@@ -149,26 +138,50 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let selectedVibe = '';
-        let finalIntent = '';
+        let isListening = false;
 
-        // Voice Engine
+        // Speech Engine Logic
         const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let speech;
         if (Recognition) {
             speech = new Recognition();
+            speech.continuous = true;
+            speech.interimResults = true;
+
             speech.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                document.getElementById('intent-display').value = text;
-                finalIntent = text;
-                document.getElementById('mic-trigger').classList.remove('listening');
+                let currentTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    currentTranscript += event.results[i][0].transcript;
+                }
+                document.getElementById('intent-display').value = currentTranscript;
             };
-            speech.onerror = () => document.getElementById('mic-trigger').classList.remove('listening');
+
+            speech.onend = () => {
+                stopMicUI();
+            };
         }
 
-        function startVoiceInput() {
-            if (!speech) return alert("Voice input not supported.");
+        function toggleVoiceInput() {
+            if (!speech) return alert("Voice input not supported on this device.");
+            if (!isListening) {
+                speech.start();
+                startMicUI();
+            } else {
+                speech.stop();
+                stopMicUI();
+            }
+        }
+
+        function startMicUI() {
+            isListening = true;
             document.getElementById('mic-trigger').classList.add('listening');
-            speech.start();
+            document.getElementById('mic-status').innerText = "LISTENING... (TAP TO STOP)";
+        }
+
+        function stopMicUI() {
+            isListening = false;
+            document.getElementById('mic-trigger').classList.remove('listening');
+            document.getElementById('mic-status').innerText = "TAP TO SPEAK";
         }
 
         function nextStep(curr, next) {
@@ -182,10 +195,10 @@
         }
 
         function runEngine() {
-            finalIntent = document.getElementById('intent-display').value;
+            if (isListening) speech.stop();
             nextStep('bio-step', 'engine-step');
             const status = document.getElementById('engine-status');
-            const log = ["FAITH AI ANALYZING VOICE...", "FILTERING IDENTITY...", "LOCKED."];
+            const log = ["FAITH AI ANALYZING INTENT...", "ESTABLISHING FREQUENCY...", "LOCKED."];
             let i = 0;
             const interval = setInterval(() => {
                 status.innerText = log[i]; i++;
@@ -194,10 +207,10 @@
         }
 
         async function finalizeRadar() {
+            const finalIntent = document.getElementById('intent-display').value;
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) { await _supabase.from('profiles').upsert({ id: user.id, current_vibe: selectedVibe, bio: finalIntent }); }
             document.getElementById('engine-step').style.display = 'none';
-            document.getElementById('search-container').style.display = 'block';
             initMap();
         }
 
@@ -206,7 +219,6 @@
             navigator.geolocation.getCurrentPosition((pos) => {
                 const userLoc = [pos.coords.longitude, pos.coords.latitude];
                 const map = new mapboxgl.Map({ container: 'map', style: 'mapbox://styles/mapbox/dark-v11', center: userLoc, zoom: 17, pitch: 60 });
-                
                 const el = document.createElement('div');
                 el.style.width='28px'; el.style.height='28px'; el.style.background='#fff'; 
                 el.style.border='4px solid var(--neon-cyan)'; el.style.borderRadius='50%';
