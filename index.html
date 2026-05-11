@@ -11,8 +11,8 @@
             --glow-pink: 0 0 15px var(--neon-pink);
             --btn-glow-pink: 0 0 25px var(--neon-pink);
             
-            /* Social Brand Colors */
-            --apple: #ffffff; --google: #4285F4; --insta: #f09433; 
+            /* Social Brand Neon Colors */
+            --apple: #ffffff; --google: #4285F4; --insta: #E1306C; 
             --snap: #FFFC00; --fb: #1877F2; --x: #ffffff; --gmail: #EA4335;
         }
 
@@ -34,21 +34,21 @@
         .hidden { transform: translateX(100%); opacity: 0; pointer-events: none; z-index: 0; visibility: hidden; }
         .active { transform: translateX(0); opacity: 1; pointer-events: all; z-index: 10; visibility: visible; }
 
-        /* HEADER */
+        /* HEADER SECTION */
         .header { text-align: center; margin-top: 20px; }
         .logo { font-size: 5rem; font-weight: 900; letter-spacing: 10px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
         .tagline { color: var(--neon-pink); font-size: 1rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
 
-        /* FORMS & INPUTS */
-        .form-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        /* FORM CONTROLS */
+        .form-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .input-field {
             width: 100%; height: 55px; background: #111; border: 2px solid #333; 
-            border-radius: 12px; padding: 0 15px; color: #FFF; font-size: 1rem;
+            border-radius: 12px; padding: 0 15px; color: #FFF; font-size: 1.1rem;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
         .input-field:focus { border-color: var(--neon-pink); box-shadow: var(--glow-pink); }
 
-        /* BUTTONS */
+        /* BUTTON ARCHITECTURE */
         .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .btn { 
             height: 55px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; 
@@ -57,6 +57,7 @@
         }
         .btn:active { transform: scale(0.96); }
 
+        /* WYA NEON BUTTONS */
         .btn-pink { 
             background: transparent; color: var(--neon-pink); 
             border: 4px solid var(--neon-pink) !important; 
@@ -68,15 +69,16 @@
         .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 5px; }
         .btn-social { background: #111; color: #FFF; border-width: 2px; border-style: solid; font-size: 0.75rem; border-radius: 10px; height: 50px; }
 
-        /* SOCIAL THEMES */
-        .apple { border-color: #555; box-shadow: 0 0 10px #555; }
+        /* BRAND NEON THEMES */
+        .apple { border-color: var(--apple); box-shadow: 0 0 10px var(--apple); }
         .google { border-color: var(--google); box-shadow: 0 0 10px var(--google); }
-        .insta { border-color: #E1306C; box-shadow: 0 0 10px #E1306C; }
+        .insta { border-color: var(--insta); box-shadow: 0 0 10px var(--insta); }
         .snap { border-color: var(--snap); color: var(--snap); box-shadow: 0 0 10px var(--snap); }
         .facebook { border-color: var(--fb); box-shadow: 0 0 10px var(--fb); }
-        .x-com { border-color: #fff; box-shadow: 0 0 10px #fff; }
+        .x-com { border-color: var(--x); box-shadow: 0 0 10px var(--x); }
         .gmail { border-color: var(--gmail); box-shadow: 0 0 10px var(--gmail); }
 
+        /* FOOTER LINKS */
         .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; cursor: pointer; text-align: center; }
         .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow-pink); }
     </style>
@@ -120,10 +122,10 @@
     <div id="signUpScreen" class="screen hidden">
         <div class="header"><h1 class="logo" style="font-size: 3rem;">JOIN</h1><p class="tagline">Create Account</p></div>
         
-        <form class="form-container" onsubmit="event.preventDefault(); handleForm('Sign Up')">
-            <input type="text" class="input-field" placeholder="Username" required>
-            <input type="email" class="input-field" placeholder="Email" required>
-            <input type="password" class="input-field" placeholder="Password" required>
+        <form class="form-container" onsubmit="processForm(event, 'Sign Up')">
+            <input name="username" type="text" class="input-field" placeholder="Username" required>
+            <input name="email" type="email" class="input-field" placeholder="Email" required>
+            <input name="password" type="password" class="input-field" placeholder="Password" required>
             <button type="submit" class="btn btn-pink">Register</button>
         </form>
 
@@ -133,17 +135,17 @@
     <div id="signInScreen" class="screen hidden">
         <div class="header"><h1 class="logo" style="font-size: 3rem;">LOGIN</h1><p class="tagline">Welcome Back</p></div>
         
-        <form class="form-container" onsubmit="event.preventDefault(); handleForm('Sign In')">
-            <input type="text" class="input-field" placeholder="Username or Email" required>
-            <input type="password" class="input-field" placeholder="Password" required>
+        <form class="form-container" onsubmit="processForm(event, 'Sign In')">
+            <input name="loginID" type="text" class="input-field" placeholder="Username or Email" required>
+            <input name="password" type="password" class="input-field" placeholder="Password" required>
             <button type="submit" class="btn btn-pink">Login</button>
-            <div style="color: #666; font-size: 0.8rem; text-align: center; margin-top: -5px;">Forgot Password?</div>
         </form>
 
         <div class="footer-link" onclick="navigate('authScreen')"><span>Back to Menu</span></div>
     </div>
 
     <script>
+        // NAVIGATION CONTROLLER
         function navigate(id) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
@@ -156,13 +158,30 @@
             }
         }
 
-        function socialAuth(provider) {
-            alert("Connecting to " + provider + "...");
+        // FORM PROCESSING LOGIC
+        function processForm(event, type) {
+            event.preventDefault();
+            const data = new FormData(event.target);
+            const entry = Object.fromEntries(data);
+            
+            if(type === 'Sign Up') {
+                console.log("Creating Account for:", entry.username);
+                alert("WYA: Account Created! Please Sign In.");
+                navigate('signInScreen');
+            } else {
+                console.log("Logging in user:", entry.loginID);
+                alert("WYA: Access Granted. Welcome!");
+                navigate('landingScreen');
+            }
         }
 
-        function handleForm(type) {
-            alert(type + " Successful! Welcome to WYA.");
-            navigate('landingScreen');
+        // SOCIAL HANDSHAKE MOCK
+        function socialAuth(provider) {
+            alert("Connecting to " + provider + " Secure API...");
+            setTimeout(() => {
+                alert(provider + " Auth Successful.");
+                navigate('landingScreen');
+            }, 1000);
         }
     </script>
 </body>
