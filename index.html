@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WYA - Find The Move</title>
+    <title>WYA - Find The Move. Be The Move.</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
@@ -32,12 +32,12 @@
             padding: 20px; box-sizing: border-box;
         }
 
-        /* Branding */
+        /* Branding Styling */
         .brand-logo { font-size: 5rem; font-weight: 900; letter-spacing: -2px; color: #fff; line-height: 1; margin: 0; }
         .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center; }
         .faith-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 30px; text-align: center; }
 
-        /* Glowing Text Box - REINSTATED */
+        /* Hybrid Input Box */
         .intent-input {
             width: 100%; padding: 25px; border-radius: 25px;
             background: rgba(0,255,255,0.05); border: 2px solid var(--neon-cyan);
@@ -47,10 +47,9 @@
             box-shadow: 0 0 15px rgba(0,255,255,0.2);
             transition: 0.3s;
         }
-        .intent-input:focus { box-shadow: 0 0 30px rgba(0,255,255,0.4); border-color: #fff; }
         .intent-input::placeholder { color: rgba(0,255,255,0.3); text-shadow: none; }
 
-        /* Glowing Buttons */
+        /* Glowing Primary Button */
         .glow-btn {
             background: transparent; color: var(--neon-cyan); border: 3px solid var(--neon-cyan);
             padding: 22px; width: 100%; border-radius: 20px; font-weight: 900;
@@ -60,7 +59,7 @@
         }
         .glow-btn:active { background: var(--neon-cyan); color: #000; }
 
-        /* Mic Toggle Styling */
+        /* Mic Interface */
         .mic-container { margin-bottom: 40px; text-align: center; }
         .mic-circle {
             width: 100px; height: 100px; border-radius: 50%;
@@ -77,7 +76,7 @@
         }
         @keyframes mic-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* Vibe Grid */
+        /* Vibe Selection Grid */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; width: 100%; max-width: 400px; }
         .card {
             background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
@@ -92,7 +91,7 @@
 
     <div id="tos-step" class="overlay">
         <h1 class="brand-logo" style="margin-bottom:10px;">WYA</h1>
-        <p style="color: var(--neon-pink); font-weight: 800; letter-spacing: 4px; margin-bottom: 40px;">FIND THE MOVE.</p>
+        <p style="color: var(--neon-pink); font-weight: 800; letter-spacing: 4px; margin-bottom: 40px;">FIND THE MOVE. BE THE MOVE.</p>
         <button class="glow-btn" onclick="nextStep('tos-step', 'vibe-step')">GET STARTED</button>
     </div>
 
@@ -140,7 +139,7 @@
         let selectedVibe = '';
         let isListening = false;
 
-        // Speech Engine Logic
+        // Speech Engine Configuration
         const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let speech;
         if (Recognition) {
@@ -156,9 +155,7 @@
                 document.getElementById('intent-display').value = currentTranscript;
             };
 
-            speech.onend = () => {
-                stopMicUI();
-            };
+            speech.onend = () => { stopMicUI(); };
         }
 
         function toggleVoiceInput() {
