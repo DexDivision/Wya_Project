@@ -9,102 +9,131 @@
     </script>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>WYA</title>
+    <title>WYA MASTER DEMO</title>
     
     <style>
-        :root { --pink: #ff00ff; --green: #00ff41; --glass: rgba(255, 255, 255, 0.05); }
+        :root { --pink: #ff00ff; --green: #00ff41; --glass: rgba(255, 255, 255, 0.06); --blur: blur(20px); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body { 
             margin: 0; background: #000; color: #fff; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
         }
 
         .screen { 
             display: none; height: 100vh; width: 100vw; 
             flex-direction: column; align-items: center; justify-content: center; 
-            padding: 30px; position: absolute; transition: 0.5s ease;
+            padding: 25px; position: absolute; top: 0; left: 0;
+            background: #000;
         }
         .active { display: flex; z-index: 10; }
 
-        /* PULSING RADAR ANIMATION */
+        /* UI COMPONENTS */
+        .top-nav { position: absolute; top: 50px; width: 85%; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .close-btn { font-size: 1.5rem; font-weight: 300; opacity: 0.5; cursor: pointer; }
+
+        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: 12px; margin: 0; text-shadow: 0 0 20px var(--pink); color: var(--pink); }
+        .glass-card { 
+            background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; 
+            width: 100%; max-width: 350px; padding: 30px 20px; text-align: center;
+        }
+
+        .btn {
+            background: var(--pink); color: #000; border: none; padding: 18px; border-radius: 18px;
+            font-weight: 900; width: 100%; max-width: 300px; font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 2px; margin-top: 20px; cursor: pointer;
+        }
+        .btn-outline { background: transparent; border: 1px solid #333; color: #fff; margin-top: 10px; }
+
+        /* RADAR ANIMATION */
         .radar-pulse {
-            width: 150px; height: 150px; border-radius: 50%;
-            border: 2px solid var(--pink); position: relative;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 40px;
+            width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--pink);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 30px; position: relative;
         }
         .radar-pulse::after {
             content: ''; position: absolute; width: 100%; height: 100%;
-            border-radius: 50%; border: 2px solid var(--pink);
-            animation: pulse 2s infinite;
+            border-radius: 50%; border: 1px solid var(--pink); animation: pulse 2.5s infinite;
         }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.8); opacity: 0; } }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
-        }
+        /* TAG GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 20px; }
+        .tag { background: rgba(255,255,255,0.05); border: 1px solid #222; padding: 15px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+        .tag.selected { border-color: var(--pink); color: var(--pink); box-shadow: 0 0 10px rgba(255,0,255,0.2); }
 
-        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: 15px; margin: 0; text-shadow: 0 0 20px var(--pink); }
-        .tagline { font-size: 0.7rem; letter-spacing: 5px; color: var(--pink); margin-top: 10px; opacity: 0.8; }
-
-        /* BUTTONS */
-        .btn {
-            background: var(--pink); color: #000; border: none;
-            padding: 20px 40px; border-radius: 20px; font-weight: 900;
-            width: 100%; max-width: 280px; font-size: 1rem;
-            text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.3);
-            cursor: pointer; margin-top: 40px;
-        }
-
-        /* RADAR CARD */
-        .glass-card {
-            background: var(--glass); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 35px; width: 100%; max-width: 340px;
-            padding: 40px 20px; text-align: center;
-        }
-
-        .dist-val { font-size: 4rem; font-weight: 900; margin: 10px 0; font-variant-numeric: tabular-nums; }
-        .label { font-size: 0.65rem; letter-spacing: 3px; color: #666; text-transform: uppercase; }
-        
-        .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px var(--green); }
-
-        .deactivate { margin-top: 60px; font-size: 0.6rem; color: #333; letter-spacing: 2px; cursor: pointer; }
+        .label { font-size: 0.6rem; letter-spacing: 3px; color: #555; text-transform: uppercase; margin-bottom: 5px; }
+        .dist-val { font-size: 3.5rem; font-weight: 900; color: var(--pink); margin: 10px 0; }
     </style>
 </head>
-<body onload="checkSession()">
+<body onload="checkState()">
 
     <div id="screen_splash" class="screen active">
-        <div class="radar-pulse"><span style="font-size: 2rem;">📡</span></div>
+        <div class="radar-pulse"><span style="font-size: 1.5rem;">📡</span></div>
         <h1 class="logo">WYA</h1>
-        <p class="tagline">INTELLIGENCE OS</p>
-        <button class="btn" onclick="navTo('screen_radar')">Enter Radar</button>
+        <button class="btn" onclick="navTo('screen_tos')">Initialize OS</button>
+    </div>
+
+    <div id="screen_tos" class="screen">
+        <div class="glass-card">
+            <h2 style="font-size: 1rem; letter-spacing: 3px;">LEGAL PROTOCOL</h2>
+            <p style="font-size: 0.7rem; color: #888; line-height: 1.6; text-align: left; height: 150px; overflow-y: auto; padding-right: 10px;">
+                By entering the WYA network, you agree to share precise location data for proximity calculations. Your data is encrypted and discarded after session termination. Respect the move. Stay active.
+            </p>
+            <button class="btn" onclick="navTo('screen_login')">Accept & Continue</button>
+        </div>
+    </div>
+
+    <div id="screen_login" class="screen">
+        <div class="top-nav"><div class="close-btn" onclick="navTo('screen_splash')">←</div></div>
+        <h2 class="label">Identity Bridge</h2>
+        <div style="width: 100%; max-width: 300px;">
+            <button class="btn btn-outline" onclick="navTo('screen_profile')">Continue with Apple</button>
+            <button class="btn btn-outline" onclick="navTo('screen_profile')">Continue with Instagram</button>
+            <button class="btn btn-outline" onclick="navTo('screen_profile')">Continue with X</button>
+        </div>
+    </div>
+
+    <div id="screen_profile" class="screen">
+        <h2 class="label">Configure Architect</h2>
+        <div class="glass-card">
+            <input type="text" placeholder="DISPLAY NAME" id="uName" style="background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; width: 100%; text-align: center; padding: 10px; font-weight: 900; letter-spacing: 2px;">
+            <p class="label" style="margin-top: 20px;">Select Interests</p>
+            <div class="grid" id="tagGrid"></div>
+            <button class="btn" onclick="finishProfile()">Sync to Radar</button>
+        </div>
     </div>
 
     <div id="screen_radar" class="screen">
+        <div class="top-nav">
+            <div style="font-size: 0.6rem; color: var(--green); letter-spacing: 2px;">● LIVE</div>
+            <div class="close-btn" onclick="hardReset()">✕</div>
+        </div>
+        
         <div class="glass-card">
-            <div style="margin-bottom: 20px;"><span class="status-dot"></span><span class="label" style="color: var(--green)">Live Tracking</span></div>
-            <p class="label">Nearest Move</p>
-            <h2 style="margin: 5px 0; letter-spacing: 1px;">GHOST_ONE</h2>
+            <p class="label">Nearest Signal</p>
+            <h2 id="targetName" style="margin:0;">GHOST_ONE</h2>
             <div class="dist-val" id="distDisplay">--.-</div>
             <p class="label">Miles Away</p>
         </div>
 
-        <div id="miniCoords" style="margin-top: 30px; font-size: 0.5rem; color: #222; font-family: monospace;"></div>
-        <div class="deactivate" onclick="kill()">Deactivate Session</div>
+        <div style="display: flex; gap: 10px; width: 100%; max-width: 340px; margin-top: 20px;">
+            <button class="btn" style="margin:0; height: 50px; font-size: 0.7rem;" onclick="navTo('screen_profile')">Edit Profile</button>
+            <button class="btn btn-outline" style="margin:0; height: 50px; font-size: 0.7rem;" onclick="alert('Discovery feature locked for demo.')">Discovery</button>
+        </div>
     </div>
 
     <script>
+        const tags = ["NIGHTLIFE", "GYM", "GAMING", "STUDY", "DINING", "LOUNGE"];
         let gLat, gLon;
 
-        function checkSession() {
-            if(localStorage.getItem('wya_demo_v1')) {
+        function checkState() {
+            renderTags();
+            if(localStorage.getItem('wya_v37_ready')) {
                 navTo('screen_radar');
             }
         }
@@ -112,21 +141,37 @@
         function navTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            localStorage.setItem('wya_demo_v1', 'true');
-            if(id === 'screen_radar') startRadar();
+            if(id === 'screen_radar') startTracking();
             if(typeof gtag === 'function') gtag('event', 'screen_view', { 'screen_name': id });
         }
 
-        function startRadar() {
+        function renderTags() {
+            const container = document.getElementById('tagGrid');
+            container.innerHTML = '';
+            tags.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'tag';
+                div.innerText = t;
+                div.onclick = () => div.classList.toggle('selected');
+                container.appendChild(div);
+            });
+        }
+
+        function finishProfile() {
+            const name = document.getElementById('uName').value || 'ARCHITECT';
+            localStorage.setItem('wya_v37_ready', 'true');
+            localStorage.setItem('wya_name', name);
+            navTo('screen_radar');
+        }
+
+        function startTracking() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition((p) => {
                     const lat = p.coords.latitude;
                     const lon = p.coords.longitude;
-                    if(!gLat) { gLat = lat + 0.082; gLon = lon + 0.082; } // Fixed 6.1 mile offset
-                    
+                    if(!gLat) { gLat = lat + 0.082; gLon = lon + 0.082; }
                     const d = getDist(lat, lon, gLat, gLon);
                     document.getElementById('distDisplay').innerText = d.toFixed(1);
-                    document.getElementById('miniCoords').innerText = `${lat.toFixed(4)} / ${lon.toFixed(4)}`;
                 });
             }
         }
@@ -139,7 +184,12 @@
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function kill() { localStorage.clear(); location.reload(); }
+        function hardReset() {
+            if(confirm("Terminate Session?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
