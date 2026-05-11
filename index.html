@@ -36,10 +36,10 @@
 
         /* HEADER SECTION */
         .header { text-align: center; margin-top: 20px; }
-        .logo { font-size: 5rem; font-weight: 900; letter-spacing: 10px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
-        .tagline { color: var(--neon-pink); font-size: 1rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
+        .logo { font-size: 4rem; font-weight: 900; letter-spacing: 10px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
+        .tagline { color: var(--neon-pink); font-size: 0.9rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
 
-        /* FORM CONTROLS */
+        /* FORM & INPUT CONTROLS */
         .form-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
         .input-field {
             width: 100%; height: 55px; background: #111; border: 2px solid #333; 
@@ -47,6 +47,19 @@
             transition: border-color 0.3s, box-shadow 0.3s;
         }
         .input-field:focus { border-color: var(--neon-pink); box-shadow: var(--glow-pink); }
+        textarea.input-field { height: 100px; padding: 15px; resize: none; }
+
+        /* PROGRESS INDICATOR */
+        .progress-bar { width: 100%; height: 4px; background: #222; margin-bottom: 20px; border-radius: 2px; }
+        .progress-fill { width: 50%; height: 100%; background: var(--neon-pink); box-shadow: var(--glow-pink); transition: width 0.3s; }
+
+        /* TAG SYSTEM */
+        .tag-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+        .tag { 
+            padding: 10px 18px; border: 1.5px solid #444; border-radius: 20px; 
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .tag.selected { border-color: var(--neon-pink); color: var(--neon-pink); box-shadow: var(--glow-pink); }
 
         /* BUTTON ARCHITECTURE */
         .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
@@ -55,18 +68,7 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center; 
             text-decoration: none; text-transform: uppercase; transition: 0.2s; border: none;
         }
-        .btn:active { transform: scale(0.96); }
-
-        /* WYA NEON BUTTONS */
-        .btn-pink { 
-            background: transparent; color: var(--neon-pink); 
-            border: 4px solid var(--neon-pink) !important; 
-            box-shadow: var(--btn-glow-pink); text-shadow: var(--glow-pink);
-            width: 100%;
-        }
-
-        /* SOCIAL GRID */
-        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 5px; }
+        .btn-pink { background: transparent; color: var(--neon-pink); border: 4px solid var(--neon-pink) !important; box-shadow: var(--btn-glow-pink); text-shadow: var(--glow-pink); width: 100%; }
         .btn-social { background: #111; color: #FFF; border-width: 2px; border-style: solid; font-size: 0.75rem; border-radius: 10px; height: 50px; }
 
         /* BRAND NEON THEMES */
@@ -78,7 +80,6 @@
         .x-com { border-color: var(--x); box-shadow: 0 0 10px var(--x); }
         .gmail { border-color: var(--gmail); box-shadow: 0 0 10px var(--gmail); }
 
-        /* FOOTER LINKS */
         .footer-link { color: #888; font-size: 0.9rem; text-decoration: none; margin-bottom: 20px; cursor: pointer; text-align: center; }
         .footer-link span { color: var(--neon-pink); font-weight: bold; text-shadow: var(--glow-pink); }
     </style>
@@ -86,26 +87,17 @@
 <body>
 
     <div id="landingScreen" class="screen active">
-        <div class="header">
-            <h1 class="logo">WYA</h1>
-            <p class="tagline">Where You At?</p>
-        </div>
-        <div class="btn-group">
-            <button class="btn btn-pink" onclick="navigate('authScreen')">Get Started</button>
-        </div>
+        <div class="header"><h1 class="logo">WYA</h1><p class="tagline">Where You At?</p></div>
+        <div class="btn-group"><button class="btn btn-pink" onclick="navigate('authScreen')">Get Started</button></div>
         <div></div>
     </div>
 
     <div id="authScreen" class="screen hidden">
-        <div class="header">
-            <h1 class="logo" style="font-size: 3.5rem;">WYA</h1>
-            <p class="tagline">Where You At?</p>
-        </div>
+        <div class="header"><h1 class="logo" style="font-size: 3.5rem;">WYA</h1><p class="tagline">Where You At?</p></div>
         <div class="btn-group">
             <button class="btn btn-pink" onclick="navigate('signUpScreen')">Create Account</button>
             <button class="btn btn-pink" onclick="navigate('signInScreen')">Sign In</button>
-            
-            <div class="social-grid">
+            <div class="social-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
                 <button class="btn btn-social apple" onclick="socialAuth('Apple')">Apple</button>
                 <button class="btn btn-social google" onclick="socialAuth('Google')">Google</button>
                 <button class="btn btn-social insta" onclick="socialAuth('Instagram')">Instagram</button>
@@ -121,67 +113,78 @@
 
     <div id="signUpScreen" class="screen hidden">
         <div class="header"><h1 class="logo" style="font-size: 3rem;">JOIN</h1><p class="tagline">Create Account</p></div>
-        
-        <form class="form-container" onsubmit="processForm(event, 'Sign Up')">
+        <form class="form-container" onsubmit="processForm(event, 'onboardingScreen')">
             <input name="username" type="text" class="input-field" placeholder="Username" required>
             <input name="email" type="email" class="input-field" placeholder="Email" required>
             <input name="password" type="password" class="input-field" placeholder="Password" required>
             <button type="submit" class="btn btn-pink">Register</button>
         </form>
-
-        <div class="footer-link" onclick="navigate('authScreen')"><span>Back to Menu</span></div>
+        <div class="footer-link" onclick="navigate('authScreen')"><span>Back</span></div>
     </div>
 
     <div id="signInScreen" class="screen hidden">
         <div class="header"><h1 class="logo" style="font-size: 3rem;">LOGIN</h1><p class="tagline">Welcome Back</p></div>
-        
-        <form class="form-container" onsubmit="processForm(event, 'Sign In')">
+        <form class="form-container" onsubmit="processForm(event, 'onboardingScreen')">
             <input name="loginID" type="text" class="input-field" placeholder="Username or Email" required>
             <input name="password" type="password" class="input-field" placeholder="Password" required>
             <button type="submit" class="btn btn-pink">Login</button>
         </form>
+        <div class="footer-link" onclick="navigate('authScreen')"><span>Back</span></div>
+    </div>
 
-        <div class="footer-link" onclick="navigate('authScreen')"><span>Back to Menu</span></div>
+    <div id="onboardingScreen" class="screen hidden">
+        <div class="progress-bar"><div id="p-fill" class="progress-fill"></div></div>
+        <div class="header"><h1 class="logo" style="font-size: 2.5rem;">SETUP</h1><p class="tagline">Tell us about you</p></div>
+        
+        <div class="form-container" id="step1">
+            <input type="text" class="input-field" placeholder="Display Name">
+            <textarea class="input-field" placeholder="Short Bio..."></textarea>
+            <button class="btn btn-pink" onclick="nextStep(2)">Next Step</button>
+        </div>
+
+        <div class="form-container hidden" id="step2">
+            <p style="text-align: center; color: var(--neon-pink); font-weight: bold;">SELECT AI TAGS</p>
+            <div class="tag-grid">
+                <div class="tag" onclick="this.classList.toggle('selected')">Gamer</div>
+                <div class="tag" onclick="this.classList.toggle('selected')">Techie</div>
+                <div class="tag" onclick="this.classList.toggle('selected')">Creative</div>
+                <div class="tag" onclick="this.classList.toggle('selected')">Athlete</div>
+                <div class="tag" onclick="this.classList.toggle('selected')">Developer</div>
+                <div class="tag" onclick="this.classList.toggle('selected')">AI Enthusiast</div>
+                <div class="tag" onclick="this.classList.toggle('selected')">First Principles</div>
+            </div>
+            <button class="btn btn-pink" onclick="finishOnboarding()">Finish Setup</button>
+        </div>
+        <div></div>
     </div>
 
     <script>
-        // NAVIGATION CONTROLLER
         function navigate(id) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.classList.remove('active');
-                s.classList.add('hidden');
-            });
+            document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.classList.add('hidden'); });
             const target = document.getElementById(id);
-            if(target) {
-                target.classList.remove('hidden');
-                target.classList.add('active');
-            }
+            if(target) { target.classList.remove('hidden'); target.classList.add('active'); }
         }
 
-        // FORM PROCESSING LOGIC
-        function processForm(event, type) {
+        function processForm(event, nextScreen) {
             event.preventDefault();
-            const data = new FormData(event.target);
-            const entry = Object.fromEntries(data);
-            
-            if(type === 'Sign Up') {
-                console.log("Creating Account for:", entry.username);
-                alert("WYA: Account Created! Please Sign In.");
-                navigate('signInScreen');
-            } else {
-                console.log("Logging in user:", entry.loginID);
-                alert("WYA: Access Granted. Welcome!");
-                navigate('landingScreen');
-            }
+            alert("WYA: Access Granted. Welcome!");
+            navigate(nextScreen);
         }
 
-        // SOCIAL HANDSHAKE MOCK
+        function nextStep(step) {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('p-fill').style.width = '100%';
+        }
+
+        function finishOnboarding() {
+            alert("Profile 100% Complete. Welcome to the Network.");
+            navigate('landingScreen');
+        }
+
         function socialAuth(provider) {
-            alert("Connecting to " + provider + " Secure API...");
-            setTimeout(() => {
-                alert(provider + " Auth Successful.");
-                navigate('landingScreen');
-            }, 1000);
+            alert("Connecting to " + provider);
+            setTimeout(() => { navigate('onboardingScreen'); }, 1000);
         }
     </script>
 </body>
