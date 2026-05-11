@@ -5,124 +5,141 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-DQF0GRW2WG');
+      gtag('js', new Date()); gtag('config', 'G-DQF0GRW2WG');
     </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA V3.5.0 - PROXIMITY</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>WYA</title>
+    
     <style>
-        :root { 
-            --bg: #000; --neon-pink: #ff00ff; --glow-pink: 0 0 15px var(--neon-pink); 
-            --neon-green: #00ff41; --glow-green: 0 0 10px var(--neon-green);
+        :root { --pink: #ff00ff; --green: #00ff41; --glass: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body { 
+            margin: 0; background: #000; color: #fff; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh; width: 100vw; overflow: hidden;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
+
+        .screen { 
+            display: none; height: 100vh; width: 100vw; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            padding: 30px; position: absolute; transition: 0.5s ease;
+        }
+        .active { display: flex; z-index: 10; }
+
+        /* PULSING RADAR ANIMATION */
+        .radar-pulse {
+            width: 150px; height: 150px; border-radius: 50%;
+            border: 2px solid var(--pink); position: relative;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 40px;
+        }
+        .radar-pulse::after {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 2px solid var(--pink);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: 15px; margin: 0; text-shadow: 0 0 20px var(--pink); }
+        .tagline { font-size: 0.7rem; letter-spacing: 5px; color: var(--pink); margin-top: 10px; opacity: 0.8; }
+
+        /* BUTTONS */
+        .btn {
+            background: var(--pink); color: #000; border: none;
+            padding: 20px 40px; border-radius: 20px; font-weight: 900;
+            width: 100%; max-width: 280px; font-size: 1rem;
+            text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.3);
+            cursor: pointer; margin-top: 40px;
+        }
+
+        /* RADAR CARD */
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 35px; width: 100%; max-width: 340px;
+            padding: 40px 20px; text-align: center;
+        }
+
+        .dist-val { font-size: 4rem; font-weight: 900; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        .label { font-size: 0.65rem; letter-spacing: 3px; color: #666; text-transform: uppercase; }
         
-        #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; opacity: 0.6; }
+        .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px var(--green); }
 
-        .screen { display: none; height: 100vh; width: 100vw; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: absolute; }
-        .active { display: flex; }
-
-        .logo { font-size: 4rem; color: var(--neon-pink); text-shadow: var(--glow-pink); letter-spacing: 12px; font-weight: 900; }
-        .btn-primary { height: 65px; border-radius: 18px; font-size: 1rem; font-weight: 900; border: 2px solid var(--neon-pink); background: transparent; color: var(--neon-pink); width: 100%; max-width: 300px; box-shadow: 0 0 20px var(--neon-pink); cursor: pointer; text-transform: uppercase; margin-top: 20px; }
-
-        /* RADAR UI */
-        .radar-container { width: 100%; max-width: 350px; text-align: center; }
-        .status-pill { background: rgba(0, 255, 65, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 6px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; display: inline-block; margin-bottom: 30px; text-shadow: var(--glow-green); box-shadow: var(--glow-green); }
-        
-        .friend-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 25px; width: 100%; margin-top: 20px; position: relative; overflow: hidden; }
-        .friend-name { font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; margin: 0; }
-        .distance-display { font-size: 2.5rem; font-weight: 900; color: var(--neon-pink); text-shadow: var(--glow-pink); margin: 10px 0; }
-        .unit { font-size: 0.8rem; color: #444; letter-spacing: 2px; }
-
-        .reset-btn { margin-top: 50px; color: #333; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+        .deactivate { margin-top: 60px; font-size: 0.6rem; color: #333; letter-spacing: 2px; cursor: pointer; }
     </style>
 </head>
-<body onload="startup()">
-    <div id="versionTag">FAITH_OS_V3.5.0</div>
+<body onload="checkSession()">
 
     <div id="screen_splash" class="screen active">
+        <div class="radar-pulse"><span style="font-size: 2rem;">📡</span></div>
         <h1 class="logo">WYA</h1>
-        <button class="btn-primary" onclick="navTo('screen_radar')">Initialize Radar</button>
+        <p class="tagline">INTELLIGENCE OS</p>
+        <button class="btn" onclick="navTo('screen_radar')">Enter Radar</button>
     </div>
 
     <div id="screen_radar" class="screen">
-        <div class="radar-container">
-            <div class="status-pill">SYSTEM ACTIVE</div>
-            
-            <div class="friend-card">
-                <p style="font-size: 0.6rem; color: #666; margin-bottom: 5px; letter-spacing: 2px;">NEAREST NODE</p>
-                <h2 class="friend-name">GHOST_ONE</h2>
-                <div class="distance-display" id="distText">--.-</div>
-                <div class="unit">MILES AWAY</div>
-            </div>
-
-            <div id="coordDisplay" style="margin-top: 25px; font-size: 0.6rem; font-family: monospace; color: #333;">
-                SYNCING GPS...
-            </div>
-
-            <div class="reset-btn" onclick="hardReset()">Deactivate Session</div>
+        <div class="glass-card">
+            <div style="margin-bottom: 20px;"><span class="status-dot"></span><span class="label" style="color: var(--green)">Live Tracking</span></div>
+            <p class="label">Nearest Move</p>
+            <h2 style="margin: 5px 0; letter-spacing: 1px;">GHOST_ONE</h2>
+            <div class="dist-val" id="distDisplay">--.-</div>
+            <p class="label">Miles Away</p>
         </div>
+
+        <div id="miniCoords" style="margin-top: 30px; font-size: 0.5rem; color: #222; font-family: monospace;"></div>
+        <div class="deactivate" onclick="kill()">Deactivate Session</div>
     </div>
 
     <script>
-        // MOCK DATA: A "Friend" sitting roughly 5 miles away
-        let ghostLat, ghostLon;
+        let gLat, gLon;
 
-        function startup() {
-            if(localStorage.getItem('wya_v35_active')) {
+        function checkSession() {
+            if(localStorage.getItem('wya_demo_v1')) {
                 navTo('screen_radar');
-                startTracking();
             }
         }
 
         function navTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            localStorage.setItem('wya_v35_active', 'true');
-            if(id === 'screen_radar') startTracking();
+            localStorage.setItem('wya_demo_v1', 'true');
+            if(id === 'screen_radar') startRadar();
+            if(typeof gtag === 'function') gtag('event', 'screen_view', { 'screen_name': id });
         }
 
-        function startTracking() {
-            if ("geolocation" in navigator) {
-                navigator.geolocation.watchPosition((pos) => {
-                    const lat1 = pos.coords.latitude;
-                    const lon1 = pos.coords.longitude;
-
-                    // Generate ghost location once
-                    if(!ghostLat) {
-                        ghostLat = lat1 + 0.07; // ~5 miles North
-                        ghostLon = lon1 + 0.07; // ~5 miles East
-                    }
-
-                    const dist = calculateDistance(lat1, lon1, ghostLat, ghostLon);
-                    document.getElementById('distText').innerText = dist.toFixed(1);
-                    document.getElementById('coordDisplay').innerText = `MY_POS: ${lat1.toFixed(4)}, ${lon1.toFixed(4)}`;
+        function startRadar() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition((p) => {
+                    const lat = p.coords.latitude;
+                    const lon = p.coords.longitude;
+                    if(!gLat) { gLat = lat + 0.082; gLon = lon + 0.082; } // Fixed 6.1 mile offset
                     
-                    if(typeof gtag === 'function') {
-                        gtag('event', 'proximity_update', { 'distance': dist });
-                    }
+                    const d = getDist(lat, lon, gLat, gLon);
+                    document.getElementById('distDisplay').innerText = d.toFixed(1);
+                    document.getElementById('miniCoords').innerText = `${lat.toFixed(4)} / ${lon.toFixed(4)}`;
                 });
             }
         }
 
-        // HAVERSINE FORMULA: The Math of the Radar
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 3958.8; // Earth's radius in Miles
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+        function getDist(la1, lo1, la2, lo2) {
+            const R = 3958.8;
+            const dLat = (la2-la1)*Math.PI/180;
+            const dLon = (lo2-lo1)*Math.PI/180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLon/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function hardReset() {
-            localStorage.clear();
-            location.reload();
-        }
+        function kill() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
