@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WYA - Boardman Alpha</title>
+    <title>WYA - F.A.I.T.H. Alpha</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
@@ -13,8 +13,7 @@
     <style>
         :root { 
             --neon-cyan: #00ffff; --neon-pink: #ff00ff; 
-            --glass: rgba(0, 0, 0, 0.85); --bg: #000;
-            --meta: #0668E1; --google: #EA4335; --snap: #FFFC00; --insta: #E4405F;
+            --glass: rgba(0, 0, 0, 0.9); --bg: #000;
         }
 
         html, body { 
@@ -25,10 +24,10 @@
 
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
-        /* UI Overlays */
+        /* Full-Screen UI Overlays */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); backdrop-filter: blur(30px);
+            background: rgba(0,0,0,0.98); backdrop-filter: blur(40px);
             z-index: 10000; display: flex; justify-content: center; align-items: center;
         }
 
@@ -37,50 +36,37 @@
             border-radius: 40px; padding: 30px; text-align: center; width: 90%; max-width: 400px;
         }
 
-        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 20px; font-size: 1.5rem; }
+        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 20px; font-size: 1.3rem; }
         
-        .auth-input {
-            width: 100%; padding: 18px; margin-bottom: 12px; border-radius: 18px;
-            background: #111; border: 1px solid #333; color: #fff; font-size: 1rem; box-sizing: border-box;
-        }
-
         .primary-btn {
             background: var(--neon-cyan); color: #000; border: none; padding: 18px;
             width: 100%; border-radius: 50px; font-weight: 900; text-transform: uppercase; 
-            box-shadow: 0 0 25px var(--neon-cyan); cursor: pointer; margin-bottom: 10px;
+            box-shadow: 0 0 25px var(--neon-cyan); cursor: pointer; margin-top: 15px;
         }
 
-        .secondary-btn {
-            background: transparent; color: #fff; border: 1px solid #444; 
-            padding: 15px; width: 100%; border-radius: 50px; font-weight: 700; text-transform: uppercase;
-            cursor: pointer; font-size: 0.8rem; letter-spacing: 1px;
-        }
-
-        /* Social Auth Section */
-        .social-divider { margin: 25px 0; color: #555; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; }
-        .social-divider::before, .social-divider::after { content: ""; flex: 1; height: 1px; background: #333; margin: 0 10px; }
-
-        .social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px; }
-        .social-btn {
-            height: 50px; width: 50px; border-radius: 50%; border: none;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.2rem; cursor: pointer; transition: 0.3s;
-        }
-        .social-btn.google { background: #fff; color: #000; }
-        .social-btn.meta { background: var(--meta); color: #fff; }
-        .social-btn.insta { background: var(--insta); color: #fff; }
-        .social-btn.snap { background: var(--snap); color: #000; }
-
-        /* Vibe Grid */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        /* Category Grid (Expanded) */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
         .card {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            padding: 25px; border-radius: 30px; text-align: center;
+            padding: 15px; border-radius: 25px; text-align: center; cursor: pointer; transition: 0.2s;
         }
-        .card.selected { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan); }
-        .card span { display: block; font-size: 2rem; margin-bottom: 10px; }
+        .card.selected { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); }
+        .card span { display: block; font-size: 1.2rem; margin-bottom: 5px; }
+        .card h3 { margin: 0; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; }
 
-        /* Pulsing Radar Node */
+        /* Tag Cloud Styling (AI ID Tags) */
+        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
+        .id-tag {
+            padding: 8px 15px; border-radius: 20px; background: rgba(255,255,255,0.1);
+            font-size: 0.75rem; font-weight: bold; border: 1px solid transparent; cursor: pointer;
+        }
+        .id-tag.active { background: var(--neon-pink); border-color: #fff; text-shadow: 0 0 5px #fff; }
+
+        /* Faith AI Scanning Animation */
+        .ai-scanner { width: 100%; height: 4px; background: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan); position: relative; animation: scan 2s infinite ease-in-out; }
+        @keyframes scan { 0% { top: -20px; } 50% { top: 120px; } 100% { top: -20px; } }
+
+        /* Nodes */
         .user-dot {
             width: 26px; height: 26px; background: #fff; border: 4px solid var(--neon-cyan);
             border-radius: 50%; box-shadow: 0 0 25px var(--neon-cyan); position: relative;
@@ -90,10 +76,7 @@
             border: 2px solid var(--neon-cyan); border-radius: 50%;
             animation: radar-pulse 2s infinite; opacity: 0;
         }
-        @keyframes radar-pulse {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
+        @keyframes radar-pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(3.5); opacity: 0; } }
         
         #profile-card {
             position: fixed; bottom: -100%; left: 0; right: 0;
@@ -109,54 +92,71 @@
 
     <div id="tos-step" class="overlay">
         <div class="glass-card">
-            <h1 class="neon-title" style="color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink);">CONSENT</h1>
-            <p style="color: #888; font-size: 0.8rem; margin-bottom: 30px;">0.8s High-Accuracy Intent Tracking Enabled.</p>
-            <button class="primary-btn" style="background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
+            <h1 class="neon-title" style="color: var(--neon-pink);">F.A.I.T.H.</h1>
+            <p style="color: #888; font-size: 0.8rem;">Faubel Asset & Innovation Tech Holdings.</p>
+            <button class="primary-btn" style="background: var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
         </div>
     </div>
 
     <div id="auth-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">WYA ACCESS</h2>
-            <input type="email" id="email" placeholder="Email" class="auth-input">
-            <input type="password" id="password" placeholder="Password" class="auth-input">
-            
-            <button class="primary-btn" onclick="handleAuth('signup')">CREATE ACCOUNT</button>
-            <button class="secondary-btn" style="border: none; margin-bottom: 5px;" onclick="handleAuth('login')">Already a member? Sign In</button>
+            <h2 class="neon-title">ACCESS</h2>
+            <input type="email" id="email" placeholder="Email" style="width:100%; padding:15px; border-radius:15px; background:#111; border:1px solid #333; color:#fff; margin-bottom:10px;">
+            <input type="password" id="password" placeholder="Password" style="width:100%; padding:15px; border-radius:15px; background:#111; border:1px solid #333; color:#fff; margin-bottom:15px;">
+            <button class="primary-btn" onclick="handleAuth()">ENTER GATEWAY</button>
+        </div>
+    </div>
 
-            <div class="social-divider">OR CONNECT WITH</div>
-
-            <div class="social-grid">
-                <button class="social-btn google" onclick="socialDemo('Google')"><i class="fab fa-google"></i></button>
-                <button class="social-btn meta" onclick="socialDemo('Meta')"><i class="fab fa-facebook-f"></i></button>
-                <button class="social-btn insta" onclick="socialDemo('Instagram')"><i class="fab fa-instagram"></i></button>
-                <button class="social-btn snap" onclick="socialDemo('Snapchat')"><i class="fab fa-ghost"></i></button>
+    <div id="tag-step" class="overlay" style="display:none;">
+        <div class="glass-card">
+            <h2 class="neon-title">AI ID TAGS</h2>
+            <p style="color:#666; font-size:0.7rem;">SELECT YOUR IDENTITY MARKERS</p>
+            <div class="tag-container">
+                <div class="id-tag" onclick="toggleTag(this)">FOUNDER</div>
+                <div class="id-tag" onclick="toggleTag(this)">CREATIVE</div>
+                <div class="id-tag" onclick="toggleTag(this)">TECH</div>
+                <div class="id-tag" onclick="toggleTag(this)">SOCIALITE</div>
+                <div class="id-tag" onclick="toggleTag(this)">INVESTOR</div>
+                <div class="id-tag" onclick="toggleTag(this)">RECRUITER</div>
             </div>
+            <button class="primary-btn" onclick="nextStep('tag-step', 'vibe-step')">SET IDENTITY</button>
         </div>
     </div>
 
     <div id="vibe-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">WHAT'S THE MOVE?</h2>
+            <h2 class="neon-title">SELECT VIBE</h2>
             <div class="grid">
-                <div class="card" id="vibe-business" onclick="selectVibe('Business/Faith')"><span>💼</span><h3>BUSINESS</h3></div>
-                <div class="card" id="vibe-move" onclick="selectVibe('The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Business')"><span>💼</span><h3>BUSINESS</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Clubbing')"><span>✨</span><h3>CLUBBING</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANTIC</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Platonic')"><span>🤝</span><h3>PLATONIC</h3></div>
+                <div class="card" onclick="selectVibe(this, 'Social')"><span>🍹</span><h3>SOCIAL</h3></div>
+                <div class="card" onclick="selectVibe(this, 'The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
             </div>
-            <button class="primary-btn" style="margin-top: 30px;" onclick="nextStep('vibe-step', 'bio-step')">NEXT</button>
+            <button class="primary-btn" style="margin-top:20px;" onclick="nextStep('vibe-step', 'faith-ai-step'); runFaithAI();">NEXT</button>
+        </div>
+    </div>
+
+    <div id="faith-ai-step" class="overlay" style="display:none;">
+        <div class="glass-card" style="position:relative; overflow:hidden;">
+            <h2 class="neon-title">FAITH AI</h2>
+            <div class="ai-scanner"></div>
+            <p id="ai-status" style="font-family:monospace; font-size:0.8rem; color:var(--neon-cyan); margin-top:40px;">CALIBRATING FREQUENCY...</p>
         </div>
     </div>
 
     <div id="bio-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 class="neon-title">YOUR INTENT</h2>
-            <textarea id="bio" placeholder="Ex: Looking for B2B partners..." class="auth-input" style="height: 120px;"></textarea>
+            <h2 class="neon-title">FINAL INTENT</h2>
+            <textarea id="bio" placeholder="Faith AI optimized: Waiting for your input..." style="width:100%; height:100px; border-radius:20px; background:#111; border:1px solid #333; color:#fff; padding:15px;"></textarea>
             <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
         </div>
     </div>
 
     <div id="profile-card">
-        <div style="color: var(--neon-pink); font-weight: 900; margin-bottom: 10px;">NODE DATA</div>
-        <h2 id="card-name" style="color: var(--neon-cyan);">Alpha Founder</h2>
+        <h2 id="card-name" style="color: var(--neon-cyan); margin:0;">Alpha Node</h2>
+        <div id="card-tags" style="display:flex; justify-content:center; gap:5px; margin:10px 0;"></div>
         <p id="card-bio" style="color: #ccc; margin-bottom: 25px;"></p>
         <button class="primary-btn" style="background:#fff; color:#000;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
     </div>
@@ -169,40 +169,56 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let selectedVibe = '';
+        let selectedTags = [];
 
         function nextStep(current, next) {
             document.getElementById(current).style.display = 'none';
             document.getElementById(next).style.display = 'flex';
         }
 
-        async function handleAuth(type) {
+        function toggleTag(el) {
+            el.classList.toggle('active');
+            const tag = el.innerText;
+            if (selectedTags.includes(tag)) selectedTags = selectedTags.filter(t => t !== tag);
+            else selectedTags.push(tag);
+        }
+
+        function selectVibe(el, vibe) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedVibe = vibe;
+        }
+
+        async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            if (type === 'signup') {
-                await _supabase.auth.signUp({ email, password });
-            } else {
-                const { error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) { alert(error.message); return; }
-            }
-            nextStep('auth-step', 'vibe-step');
+            await _supabase.auth.signUp({ email, password });
+            await _supabase.auth.signInWithPassword({ email, password });
+            nextStep('auth-step', 'tag-step');
         }
 
-        function socialDemo(platform) {
-            alert(platform + " Login: Active for Monday Demo. This bypasses email for instant onboarding.");
-            nextStep('auth-step', 'vibe-step');
-        }
-
-        function selectVibe(vibe) {
-            selectedVibe = vibe;
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            const idMap = {'Business/Faith':'vibe-business', 'The Move':'vibe-move'};
-            if (document.getElementById(idMap[vibe])) document.getElementById(idMap[vibe]).classList.add('selected');
+        function runFaithAI() {
+            const status = document.getElementById('ai-status');
+            const phases = ["ANALYZING IDENTITY...", "FILTERING INTENT...", "SECURE CONNECTION ESTABLISHED.", "READY."];
+            let i = 0;
+            const interval = setInterval(() => {
+                status.innerText = phases[i];
+                i++;
+                if (i === phases.length) {
+                    clearInterval(interval);
+                    setTimeout(() => nextStep('faith-ai-step', 'bio-step'), 1000);
+                }
+            }, 800);
         }
 
         async function finalizeProfile() {
             const bioText = document.getElementById('bio').value;
             const { data: { user } } = await _supabase.auth.getUser();
-            if (user) { await _supabase.from('profiles').upsert({ id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText }); }
+            if (user) { 
+                await _supabase.from('profiles').upsert({ 
+                    id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText, tags: selectedTags 
+                }); 
+            }
             document.getElementById('bio-step').style.display = 'none';
             initRadar(bioText);
         }
@@ -218,8 +234,10 @@
 
                 const el = document.createElement('div'); el.className = 'user-dot';
                 el.onclick = () => {
-                    document.getElementById('card-name').innerText = "Founder (Alpha)";
+                    document.getElementById('card-name').innerText = "Alpha Founder";
                     document.getElementById('card-bio').innerText = bio;
+                    const tagHtml = selectedTags.map(t => `<span style="font-size:0.6rem; padding:3px 8px; border-radius:10px; background:var(--neon-pink);">${t}</span>`).join('');
+                    document.getElementById('card-tags').innerHTML = tagHtml;
                     document.getElementById('profile-card').classList.add('active');
                 };
                 new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
