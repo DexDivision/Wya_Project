@@ -12,212 +12,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>WYA V3.9.0</title>
+    <title>WYA V3.10.0</title>
     
     <style>
-        :root { --pink: #ff00ff; --green: #00ff41; --glass: rgba(255, 255, 255, 0.08); --blur: blur(30px); }
+        :root { 
+            --pink: #ff00ff; --green: #00ff41; --blue: #00f2ff;
+            --glass: rgba(20, 20, 25, 0.8); --blur: blur(25px); 
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            margin: 0; background: #000; color: #fff; 
+            margin: 0; background: #08080a; color: #fff; 
             font-family: -apple-system, system-ui, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
         }
 
+        /* THE MAP LAYER */
+        #mapCanvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+        .street { position: absolute; background: rgba(0, 242, 255, 0.05); }
+        .building { position: absolute; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; }
+        .poi { position: absolute; font-size: 0.8rem; opacity: 0.4; filter: grayscale(1); }
+
+        /* SCREENS */
         .screen { 
             display: none; height: 100vh; width: 100vw; 
-            flex-direction: column; align-items: center; padding: 60px 25px; 
-            position: absolute; background: #000; overflow-y: auto;
+            flex-direction: column; align-items: center; justify-content: center; 
+            padding: 30px; position: absolute; z-index: 10;
         }
-        .active { display: flex; z-index: 10; }
+        .active { display: flex; }
 
-        .top-nav { position: fixed; top: 50px; width: 90%; display: flex; justify-content: space-between; z-index: 100; align-items: center;}
-        .nav-icon { font-size: 1.2rem; cursor: pointer; padding: 10px; background: var(--glass); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;}
+        .top-nav { position: fixed; top: 50px; width: 90%; display: flex; justify-content: space-between; z-index: 100; }
+        .nav-icon { background: var(--glass); backdrop-filter: var(--blur); padding: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        /* BUTTONS & UI */
-        .btn {
-            background: var(--pink); color: #000; border: none; padding: 20px; border-radius: 20px;
-            font-weight: 900; width: 100%; max-width: 320px; text-transform: uppercase; letter-spacing: 2px;
-            cursor: pointer; margin-top: 15px;
+        /* RADAR SYSTEM */
+        .radar-center { position: relative; width: 350px; height: 350px; display: flex; align-items: center; justify-content: center; }
+        .radar-ring { position: absolute; border: 1px solid rgba(255, 0, 255, 0.15); border-radius: 50%; animation: pulseRing 4s infinite linear; }
+        @keyframes pulseRing { 0% { transform: scale(0.5); opacity: 0; } 50% { opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        .user-node { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); cursor: pointer; z-index: 20; }
+        .user-node.intent-match { background: var(--blue); box-shadow: 0 0 15px var(--blue); }
+        .me-node { width: 16px; height: 16px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #fff; z-index: 30; border: 3px solid #000; }
+
+        /* DISCOVERY DRAWER (Swipe Up Style) */
+        .drawer {
+            position: fixed; bottom: -85%; left: 0; width: 100%; height: 90%;
+            background: var(--glass); backdrop-filter: var(--blur);
+            border-top: 1px solid rgba(255,0,255,0.3); border-radius: 30px 30px 0 0;
+            z-index: 200; transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            padding: 20px;
         }
-        .btn-outline { background: transparent; border: 1px solid var(--pink); color: var(--pink); }
+        .drawer.open { bottom: 0; }
+        .drawer-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 10px; margin: 0 auto 20px; }
 
-        /* INTENT SELECTOR */
-        .intent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin: 20px 0; }
-        .intent-card { background: var(--glass); border: 1px solid #222; padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .intent-card.selected { border-color: var(--pink); background: rgba(255,0,255,0.15); box-shadow: 0 0 15px rgba(255,0,255,0.3); }
-        .intent-card span { display: block; font-size: 1.2rem; margin-bottom: 5px; }
-        .intent-card label { font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; color: #888; }
+        .btn { background: var(--pink); color: #000; border: none; padding: 20px; border-radius: 20px; font-weight: 900; width: 100%; max-width: 300px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
+        
+        .focus-card { position: fixed; bottom: 120px; width: 90%; background: var(--glass); backdrop-filter: var(--blur); border-radius: 25px; padding: 20px; border: 1px solid var(--pink); display: none; z-index: 150; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* RADAR FIELD */
-        .radar-field { width: 340px; height: 340px; border: 1px solid rgba(255,0,255,0.1); border-radius: 50%; position: relative; margin: 40px 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,0,255,0.05) 0%, transparent 70%); }
-        .user-node { position: absolute; width: 10px; height: 10px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); cursor: pointer; transform: translate(-50%, -50%); transition: 0.3s; }
-        .user-node:active { transform: scale(3); }
-        .center-node { width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #fff; z-index: 2; }
-
-        /* DISCOVERY LIST */
-        .discovery-header { width: 100%; text-align: left; margin-bottom: 30px; }
-        .match-card { 
-            background: var(--glass); border: 1px solid #222; border-radius: 25px; 
-            width: 100%; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;
-        }
-        .match-avatar { width: 50px; height: 50px; border-radius: 15px; background: linear-gradient(45deg, #222, #444); border: 1px solid var(--pink); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--pink); }
-        .match-info h4 { margin: 0; font-size: 1rem; }
-        .match-info p { margin: 5px 0 0; font-size: 0.65rem; color: #666; letter-spacing: 1px; }
-        .match-tag { display: inline-block; padding: 4px 8px; background: rgba(255,0,255,0.1); border-radius: 5px; font-size: 0.5rem; margin-right: 5px; color: var(--pink); margin-top: 5px;}
-
-        .label { font-size: 0.65rem; letter-spacing: 4px; color: #555; text-transform: uppercase; }
-        .focus-pop { position: fixed; bottom: 40px; background: var(--glass); backdrop-filter: var(--blur); padding: 20px; border-radius: 20px; border: 1px solid var(--pink); width: 85%; z-index: 200; display: none; }
     </style>
 </head>
 <body onload="init()">
 
-    <div id="focusPop" class="focus-pop">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 id="focusName" style="margin:0">User</h3>
-            <span onclick="closeFocus()" style="font-size: 1.2rem;">✕</span>
-        </div>
-        <div id="focusTags" style="margin-top: 10px;"></div>
-        <button class="btn" style="height: 45px; font-size: 0.7rem;" onclick="navTo('screen_discovery')">View Full Profile</button>
-    </div>
+    <div id="mapCanvas"></div>
 
-    <div id="screen_splash" class="screen active">
-        <h1 style="font-size: 4rem; letter-spacing: 15px; color: var(--pink); text-shadow: 0 0 20px var(--pink);">WYA</h1>
-        <button class="btn" onclick="navTo('screen_profile')">Initialize OS</button>
-    </div>
-
-    <div id="screen_profile" class="screen">
-        <p class="label">Architect Setup</p>
-        <input type="text" id="userName" placeholder="ENTER NAME" style="background: transparent; border: none; border-bottom: 1px solid var(--pink); color: #fff; width: 100%; text-align: center; padding: 15px; font-size: 1.2rem; font-weight: 800; margin: 20px 0;">
-        
-        <p class="label">Primary Intent</p>
-        <div class="intent-grid">
-            <div class="intent-card" onclick="setIntent('SOCIAL', this)"><span>👋</span><label>Social</label></div>
-            <div class="intent-card" onclick="setIntent('RELATIONSHIP', this)"><span>❤️</span><label>Relationship</label></div>
-            <div class="intent-card" onclick="setIntent('NETWORKING', this)"><span>💼</span><label>Business</label></div>
-            <div class="intent-card" onclick="setIntent('VIBE', this)"><span>✨</span><label>Just Vibe</label></div>
-        </div>
-        
-        <button class="btn" onclick="validate()">Sync to Radar</button>
-    </div>
-
-    <div id="screen_radar" class="screen">
+    <div id="screen_radar" class="screen active">
         <div class="top-nav">
-            <div class="nav-icon" onclick="navTo('screen_discovery')">📜</div>
+            <div class="nav-icon" onclick="toggleDrawer()">📜</div>
+            <div style="text-align: center;">
+                <div style="font-size: 0.6rem; letter-spacing: 3px; color: var(--pink); font-weight: 900;">WYA LIVE</div>
+                <div id="activeCity" style="font-size: 0.8rem; font-weight: 300; opacity: 0.6;">BOARDMAN, OH</div>
+            </div>
             <div class="nav-icon" onclick="hardReset()">✕</div>
         </div>
-        <p class="label" id="myIntentDisplay">Searching...</p>
-        <div class="radar-field" id="field"><div class="center-node"></div></div>
-        <button class="btn btn-outline" onclick="navTo('screen_discovery')">Discover All Nodes</button>
+
+        <div class="radar-center">
+            <div class="radar-ring" style="width: 100%; height: 100%;"></div>
+            <div class="radar-ring" style="width: 70%; height: 70%; animation-delay: 1s;"></div>
+            <div class="radar-ring" style="width: 40%; height: 40%; animation-delay: 2s;"></div>
+            <div class="me-node"></div>
+            <div id="nodeField"></div>
+        </div>
+
+        <div style="position: absolute; bottom: 50px; text-align: center; width: 100%;">
+            <p class="label" style="color: #444;">Swipe up for Discovery List</p>
+            <div class="nav-icon" style="margin: 10px auto;" onclick="toggleDrawer()">↑</div>
+        </div>
     </div>
 
-    <div id="screen_discovery" class="screen">
-        <div class="top-nav" style="background: rgba(0,0,0,0.8); width: 100%; padding: 50px 25px 20px; position: sticky; top: 0;">
-            <div class="nav-icon" onclick="navTo('screen_radar')">←</div>
-            <h2 class="label" style="margin:0">Discovery List</h2>
-            <div class="nav-icon" onclick="hardReset()">✕</div>
+    <div id="focusCard" class="focus-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h2 id="fName" style="margin:0; font-size: 1.5rem;">User Name</h2>
+                <p id="fIntent" style="color: var(--pink); font-size: 0.7rem; margin: 5px 0; letter-spacing: 1px;">SOCIAL</p>
+            </div>
+            <span onclick="closeFocus()" style="font-size: 1.2rem; opacity: 0.5;">✕</span>
         </div>
-        
-        <div class="discovery-header">
-            <h2 id="matchTitle" style="margin: 20px 0 5px;">Matches Found</h2>
-            <p class="label" style="color: var(--pink)">Filtered by your Intent</p>
-        </div>
+        <div id="fTags" style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
+    </div>
 
-        <div id="matchList" style="width: 100%;"></div>
+    <div id="listDrawer" class="drawer">
+        <div class="drawer-handle" onclick="toggleDrawer()"></div>
+        <h2 class="label" style="margin-bottom: 20px;">Geofence Intelligence</h2>
+        <div id="userList" style="height: 80%; overflow-y: auto;"></div>
     </div>
 
     <script>
-        let currentIntent = "";
-        let mockUsers = [
-            { name: "Nova_01", intent: "SOCIAL", tags: ["Nightlife", "Gym"], dist: "0.2" },
-            { name: "Architect_X", intent: "RELATIONSHIP", tags: ["Gaming", "Study"], dist: "0.5" },
-            { name: "Viper_Node", intent: "NETWORKING", tags: ["SaaS", "Crypto"], dist: "0.8" },
-            { name: "Jade_Sky", intent: "SOCIAL", tags: ["Dining", "Lounge"], dist: "1.1" },
-            { name: "Ghost_One", intent: "RELATIONSHIP", tags: ["Concerts", "Travel"], dist: "1.4" }
+        const users = [
+            { name: "Nova_01", intent: "SOCIAL", tags: ["Nightlife", "Gym"], x: 60, y: -80 },
+            { name: "Architect_X", intent: "NETWORKING", tags: ["SaaS", "Design"], x: -100, y: 40 },
+            { name: "Jade_Sky", intent: "RELATIONSHIP", tags: ["Travel", "Dining"], x: 40, y: 110 },
+            { name: "Viper", intent: "VIBE", tags: ["Crypto", "Gaming"], x: -70, y: -120 }
         ];
 
         function init() {
-            if(localStorage.getItem('wya_v39_ready')) navTo('screen_radar');
+            generateMap();
+            renderNodes();
+            renderList();
         }
 
-        function setIntent(val, el) {
-            currentIntent = val;
-            document.querySelectorAll('.intent-card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
+        function generateMap() {
+            const map = document.getElementById('mapCanvas');
+            // Streets
+            for(let i=0; i<5; i++) {
+                const s = document.createElement('div');
+                s.className = 'street';
+                s.style.width = '100%'; s.style.height = '2px';
+                s.style.top = (Math.random() * 100) + '%';
+                map.appendChild(s);
+            }
+            // POI
+            const icons = ['☕', '🍸', '🌳', '🍕', '🏀'];
+            for(let i=0; i<8; i++) {
+                const p = document.createElement('div');
+                p.className = 'poi';
+                p.innerText = icons[Math.floor(Math.random()*icons.length)];
+                p.style.top = (Math.random() * 90) + '%';
+                p.style.left = (Math.random() * 90) + '%';
+                map.appendChild(p);
+            }
         }
 
-        function validate() {
-            const name = document.getElementById('userName').value;
-            if(!name || !currentIntent) return alert("Name and Intent required.");
-            localStorage.setItem('wya_v39_ready', 'true');
-            localStorage.setItem('wya_name', name);
-            localStorage.setItem('wya_intent', currentIntent);
-            navTo('screen_radar');
-        }
-
-        function navTo(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'screen_radar') buildRadar();
-            if(id === 'screen_discovery') buildDiscovery();
-            closeFocus();
-        }
-
-        function buildRadar() {
-            const field = document.getElementById('field');
-            document.getElementById('myIntentDisplay').innerText = `Intent: ${localStorage.getItem('wya_intent')}`;
-            field.querySelectorAll('.user-node').forEach(n => n.remove());
-
-            mockUsers.forEach(u => {
-                const node = document.createElement('div');
-                node.className = 'user-node';
-                const angle = Math.random() * Math.PI * 2;
-                const dist = 60 + Math.random() * 100;
-                node.style.left = (170 + Math.cos(angle) * dist) + 'px';
-                node.style.top = (170 + Math.sin(angle) * dist) + 'px';
-                node.onclick = (e) => {
-                    e.stopPropagation();
-                    focusNode(u);
-                };
-                field.appendChild(node);
+        function renderNodes() {
+            const field = document.getElementById('nodeField');
+            users.forEach(u => {
+                const n = document.createElement('div');
+                n.className = 'user-node';
+                n.style.left = (175 + u.x) + 'px';
+                n.style.top = (175 + u.y) + 'px';
+                n.onclick = (e) => { e.stopPropagation(); showFocus(u); };
+                field.appendChild(n);
             });
         }
 
-        function focusNode(u) {
-            const pop = document.getElementById('focusPop');
-            document.getElementById('focusName').innerText = u.name;
-            const tagContainer = document.getElementById('focusTags');
-            tagContainer.innerHTML = u.tags.map(t => `<span class="match-tag">${t}</span>`).join('');
-            pop.style.display = 'block';
+        function showFocus(u) {
+            const card = document.getElementById('focusCard');
+            document.getElementById('fName').innerText = u.name;
+            document.getElementById('fIntent').innerText = u.intent;
+            document.getElementById('fTags').innerHTML = u.tags.map(t => `<span style="background:rgba(255,0,255,0.1); padding:5px 10px; border-radius:8px; font-size:0.6rem; color:var(--pink); border:1px solid rgba(255,0,255,0.2);">${t}</span>`).join('');
+            card.style.display = 'block';
         }
 
-        function closeFocus() { document.getElementById('focusPop').style.display = 'none'; }
-
-        function buildDiscovery() {
-            const list = document.getElementById('matchList');
-            const myIntent = localStorage.getItem('wya_intent');
-            list.innerHTML = '';
-            
-            // Sort: Matches current intent first
-            const sorted = [...mockUsers].sort((a,b) => (a.intent === myIntent ? -1 : 1));
-
-            sorted.forEach(u => {
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                card.innerHTML = `
-                    <div class="match-avatar">${u.name[0]}</div>
-                    <div class="match-info">
-                        <h4>${u.name} ${u.intent === myIntent ? '🔥' : ''}</h4>
-                        <p>${u.dist} MILES • ${u.intent}</p>
-                        <div>${u.tags.map(t => `<span class="match-tag">${t}</span>`).join('')}</div>
+        function renderList() {
+            const list = document.getElementById('userList');
+            users.forEach(u => {
+                const item = document.createElement('div');
+                item.style.padding = '20px'; item.style.borderBottom = '1px solid #222';
+                item.innerHTML = `
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="font-weight:900;">${u.name}</span>
+                        <span style="color:var(--pink); font-size:0.7rem;">0.${Math.floor(Math.random()*9)}mi</span>
                     </div>
+                    <div style="font-size:0.6rem; opacity:0.5; margin-top:5px;">${u.tags.join(' • ')}</div>
                 `;
-                list.appendChild(card);
+                list.appendChild(item);
             });
         }
 
-        function hardReset() {
-            if(confirm("TERMINATE SESSION?")) { localStorage.clear(); location.reload(); }
+        function toggleDrawer() { document.getElementById('listDrawer').classList.toggle('open'); closeFocus(); }
+        function closeFocus() { document.getElementById('focusCard').style.display = 'none'; }
+        function hardReset() { if(confirm("Terminate Session?")) { localStorage.clear(); location.reload(); } }
+
+        function init() {
+            generateMap();
+            renderNodes();
+            renderList();
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p => {
+                    // In a real app, reverse geocoding would go here.
+                });
+            }
         }
     </script>
 </body>
