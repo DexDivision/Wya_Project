@@ -18,12 +18,10 @@
         
         #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; opacity: 0.6; }
 
-        /* Screen Transitions */
         .screen { height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: absolute; top: 0; left: 0; background: var(--bg); z-index: 10; overflow-y: auto; }
         .hidden { transform: translateY(100%); opacity: 0; pointer-events: none; }
         .active { transform: translateY(0); opacity: 1; pointer-events: all; }
         
-        /* Tactical Feed Overlay */
         #tacticalFeed { background: rgba(0,0,0,0.98); z-index: 300; padding-top: 80px; justify-content: flex-start; }
         .feed-item { width: 100%; max-width: 400px; padding: 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .feed-item:active { background: rgba(255,0,255,0.05); }
@@ -32,31 +30,25 @@
         .feed-meta { font-size: 0.6rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
         .feed-score { color: var(--connected); font-weight: 900; font-size: 1.2rem; text-shadow: var(--connected-glow); }
 
-        /* OS Mechanics Bible */
         .bible-text { font-size: 0.85rem; color: #AAA; line-height: 1.8; text-align: left; max-width: 340px; }
         .bible-hl { color: var(--neon-pink); font-weight: 900; text-transform: uppercase; }
 
-        /* Branding */
         .logo { font-size: 4rem; color: var(--neon-pink); text-shadow: var(--glow-pink); letter-spacing: 15px; font-weight: 900; margin: 0; }
         .slogan { font-size: 0.8rem; color: var(--neon-pink); letter-spacing: 4px; text-transform: uppercase; margin-top: 10px; font-weight: 800; }
 
-        /* Buttons & Tags */
         .btn-primary { height: 60px; border-radius: 16px; font-size: 1rem; font-weight: 900; cursor: pointer; text-transform: uppercase; border: 2px solid var(--neon-pink); background: transparent; color: var(--neon-pink); width: 100%; max-width: 320px; box-shadow: var(--btn-glow-pink); margin-top: 20px; }
         .btn-ghost { background: transparent; border: 1px solid #333; color: #666; font-size: 0.7rem; padding: 10px 20px; border-radius: 20px; text-transform: uppercase; font-weight: 800; cursor: pointer; margin-top: 20px; }
         .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
         .tag-selectable { padding: 8px 14px; border: 1px solid #333; border-radius: 20px; font-size: 0.65rem; color: #666; font-weight: 800; text-transform: uppercase; cursor: pointer; }
         .tag-selectable.selected { border-color: var(--neon-pink); color: #FFF; background: rgba(255,0,255,0.1); }
 
-        /* Radar Core */
         .radar-container { position: relative; width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; }
         .radar-center { width: 12px; height: 12px; background: #FFF; border-radius: 50%; box-shadow: 0 0 15px #FFF; }
         .user-node { position: absolute; width: 20px; height: 20px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); cursor: pointer; }
 
-        /* Auth UI */
         .auth-group { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 10px; margin-top: 30px; }
         .btn-auth { height: 50px; border-radius: 12px; border: 1px solid #222; background: transparent; color: #FFF; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; }
 
-        /* Profile Modal */
         #profileModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 92%; max-width: 360px; background: #050505; border: 1px solid var(--neon-pink); border-radius: 28px; padding: 30px; z-index: 500; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: var(--glow-pink); }
         #profileModal.show { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
     </style>
@@ -192,7 +184,6 @@
 
         function openFeed() {
             const list = document.getElementById('feedList'); list.innerHTML = '';
-            // Sort by proximity first, then truth
             const sorted = [...mockUsers].sort((a,b) => a.dist - b.dist);
             sorted.forEach(u => {
                 const div = document.createElement('div'); div.className = 'feed-item';
