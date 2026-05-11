@@ -68,6 +68,28 @@
         }
         .id-tag.active { background: var(--neon-pink); border-color: #fff; box-shadow: 0 0 15px var(--neon-pink); }
 
+        /* Voice Intent UI */
+        .mic-btn {
+            width: 100px; height: 100px; border-radius: 50%; background: var(--neon-cyan);
+            border: none; color: #000; font-size: 2.5rem; cursor: pointer;
+            box-shadow: 0 0 40px var(--neon-cyan); transition: 0.3s; margin: 20px 0;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .mic-btn.listening {
+            background: var(--neon-pink); box-shadow: 0 0 60px var(--neon-pink);
+            animation: mic-pulse 1.5s infinite;
+        }
+        @keyframes mic-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .transcript-preview {
+            color: #fff; font-size: 1.1rem; font-weight: 700; font-style: italic;
+            min-height: 1.5rem; margin-bottom: 20px;
+        }
+
         /* Categories */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
         .card {
@@ -76,7 +98,6 @@
         }
         .card.selected { background: var(--neon-cyan); color: #000; font-weight: 900; }
         .card span { display: block; font-size: 1.4rem; margin-bottom: 5px; }
-        .card h3 { margin: 0; font-size: 0.6rem; letter-spacing: 1px; }
 
         /* WYA Engine Animation */
         .engine-text { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--neon-cyan); margin-top: 25px; letter-spacing: 1px; }
@@ -123,7 +144,6 @@
     <div id="tag-step" class="overlay" style="display:none;">
         <div class="glass-card">
             <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 5px;">WHO ARE YOU?</h2>
-            <p style="color: #666; font-size: 0.7rem; margin-bottom: 10px;">MATCHING FREQUENCY WITH OTHERS</p>
             <div class="tag-container">
                 <div class="id-tag" onclick="toggleTag(this)">GAMING</div>
                 <div class="id-tag" onclick="toggleTag(this)">ANIME</div>
@@ -131,8 +151,6 @@
                 <div class="id-tag" onclick="toggleTag(this)">FITNESS</div>
                 <div class="id-tag" onclick="toggleTag(this)">BUSINESS</div>
                 <div class="id-tag" onclick="toggleTag(this)">NIGHTLIFE</div>
-                <div class="id-tag" onclick="toggleTag(this)">TECH</div>
-                <div class="id-tag" onclick="toggleTag(this)">MUSIC</div>
             </div>
             <button class="primary-btn" style="margin-top: 30px;" onclick="nextStep('tag-step', 'vibe-step')">SET IDENTITY</button>
         </div>
@@ -140,16 +158,31 @@
 
     <div id="vibe-step" class="overlay" style="display:none;">
         <div class="glass-card">
-            <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 20px;">WHAT'S THE MOVE?</h2>
+            <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 20px;">SELECT CATEGORY</h2>
             <div class="grid">
                 <div class="card" onclick="selectVibe(this, 'Business')"><span>💼</span><h3>BUSINESS</h3></div>
                 <div class="card" onclick="selectVibe(this, 'Clubbing')"><span>✨</span><h3>CLUBBING</h3></div>
-                <div class="card" onclick="selectVibe(this, 'Social')"><span>🍹</span><h3>SOCIAL</h3></div>
                 <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANCE</h3></div>
-                <div class="card" onclick="selectVibe(this, 'Platonic')"><span>🤝</span><h3>PLATONIC</h3></div>
                 <div class="card" onclick="selectVibe(this, 'The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
             </div>
-            <button class="primary-btn" style="margin-top: 25px;" onclick="runEngine()">SYNC RADAR</button>
+            <button class="primary-btn" style="margin-top: 25px;" onclick="nextStep('vibe-step', 'bio-step')">NEXT</button>
+        </div>
+    </div>
+
+    <div id="bio-step" class="overlay" style="display:none;">
+        <div class="glass-card">
+            <h2 class="neon-title" style="font-size: 1.1rem; color: #fff; text-shadow: none;">FAITH AI INTENT</h2>
+            <p style="color: #666; font-size: 0.7rem;">TAP TO SPEAK YOUR INTENT</p>
+            
+            <div id="transcript" class="transcript-preview">...waiting for voice input...</div>
+            
+            <center>
+                <button id="mic-trigger" class="mic-btn" onclick="startVoiceInput()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </center>
+
+            <button class="primary-btn" style="margin-top: 20px;" onclick="runEngine()">CALIBRATE RADAR</button>
         </div>
     </div>
 
@@ -158,14 +191,6 @@
             <h1 class="brand-logo" style="font-size: 3rem; color: var(--neon-cyan);">WYA</h1>
             <div style="width: 100%; height: 2px; background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); margin-top: 20px;"></div>
             <p id="engine-status" class="engine-text">CALIBRATING SPATIAL DATA...</p>
-        </div>
-    </div>
-
-    <div id="bio-step" class="overlay" style="display:none;">
-        <div class="glass-card">
-            <h2 style="font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; margin-bottom: 20px;">YOUR INTENT</h2>
-            <textarea id="bio" placeholder="Faith AI: Exactly who are you looking for?" class="auth-input" style="height: 120px;"></textarea>
-            <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
         </div>
     </div>
 
@@ -185,6 +210,33 @@
 
         let selectedVibe = '';
         let myTags = [];
+        let finalBio = '';
+
+        // Speech Recognition Setup
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let speech;
+        if (Recognition) {
+            speech = new Recognition();
+            speech.continuous = false;
+            speech.lang = 'en-US';
+            speech.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('transcript').innerText = `"${transcript}"`;
+                finalBio = transcript;
+                document.getElementById('mic-trigger').classList.remove('listening');
+            };
+            speech.onerror = () => {
+                document.getElementById('mic-trigger').classList.remove('listening');
+                alert("Voice check failed. Please check permissions.");
+            };
+        }
+
+        function startVoiceInput() {
+            if (!speech) { alert("Speech not supported on this browser."); return; }
+            document.getElementById('mic-trigger').classList.add('listening');
+            document.getElementById('transcript').innerText = "Listening...";
+            speech.start();
+        }
 
         function nextStep(current, next) {
             document.getElementById(current).style.display = 'none';
@@ -204,21 +256,27 @@
         }
 
         function runEngine() {
-            nextStep('vibe-step', 'engine-step');
+            nextStep('bio-step', 'engine-step');
             const status = document.getElementById('engine-status');
-            const log = ["SCANNING LOCAL NODES...", "FILTERING IDENTITY...", "ESTABLISHING GEOFENCE...", "READY."];
+            const log = ["FAITH AI ANALYZING VOICE...", "MAPPING INTENT NODES...", "ESTABLISHING GEOFENCE...", "LOCKED."];
             let i = 0;
             const interval = setInterval(() => {
                 status.innerText = log[i]; i++;
-                if (i === log.length) { clearInterval(interval); setTimeout(() => nextStep('engine-step', 'bio-step'), 800); }
+                if (i === log.length) { 
+                    clearInterval(interval); 
+                    setTimeout(() => finalizeProfile(), 800); 
+                }
             }, 700);
         }
 
         async function finalizeProfile() {
-            const bioText = document.getElementById('bio').value;
-            document.getElementById('bio-step').style.display = 'none';
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) { 
+                await _supabase.from('profiles').upsert({ id: user.id, email: user.email, current_vibe: selectedVibe, bio: finalBio, tags: myTags }); 
+            }
+            document.getElementById('engine-step').style.display = 'none';
             document.getElementById('search-container').style.display = 'block';
-            initRadar(bioText);
+            initRadar(finalBio);
         }
 
         function initRadar(bio) {
@@ -230,34 +288,15 @@
                     center: userLoc, zoom: 17, pitch: 60
                 });
 
-                // Geofence Circle Visualization
-                map.on('load', () => {
-                    map.addLayer({
-                        'id': 'radar-zone', 'type': 'circle', 'source': { 'type': 'geojson', 'data': { 'type': 'Point', 'coordinates': userLoc } },
-                        'paint': { 'circle-radius': 120, 'circle-color': 'var(--neon-cyan)', 'circle-opacity': 0.1, 'circle-stroke-width': 1, 'circle-stroke-color': 'var(--neon-cyan)' }
-                    });
-                });
-
                 const el = document.createElement('div'); el.className = 'user-dot';
                 el.onclick = () => {
-                    document.getElementById('card-bio').innerText = bio;
+                    document.getElementById('card-bio').innerText = bio || "Active WYA Node";
                     document.getElementById('card-tags').innerHTML = myTags.map(t => `<div class="tiny-tag">${t}</div>`).join('');
                     document.getElementById('profile-card').classList.add('active');
                 };
                 new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
 
-                // Add simulated neighborhood icons
-                addPOI(map, userLoc[0] + 0.0012, userLoc[1] + 0.0008, "Venue", "fas fa-utensils");
-                addPOI(map, userLoc[0] - 0.0011, userLoc[1] - 0.0012, "Social Hub", "fas fa-glass-cheers");
-
             }, () => { alert("GPS REQ"); }, { enableHighAccuracy: true });
-        }
-
-        function addPOI(map, lng, lat, name, icon) {
-            const el = document.createElement('div'); el.className = 'poi-icon';
-            el.innerHTML = `<i class="${icon}"></i>`;
-            el.onclick = () => { alert(name + ": High User Density Detected"); };
-            new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
         }
     </script>
 </body>
