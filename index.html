@@ -2,226 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WYA - Find The Move. Be The Move.</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WYA - Auth</title>
     <style>
-        :root { 
-            --neon-cyan: #00ffff; --neon-pink: #ff00ff; 
-            --glass: rgba(0, 0, 0, 0.85); --bg: #000;
-        }
-
-        html, body { 
-            margin: 0; padding: 0; height: 100%; width: 100%; 
-            overflow: hidden; position: fixed; background: var(--bg); 
-            font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
-        }
-
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
-
-        /* Full-Screen UI Overlays */
-        .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-            z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px; box-sizing: border-box;
-        }
-
-        /* Branding Styling */
-        .brand-logo { font-size: 5rem; font-weight: 900; letter-spacing: -2px; color: #fff; line-height: 1; margin: 0; }
-        .neon-title { font-weight: 900; text-transform: uppercase; letter-spacing: 5px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 10px; font-size: 1.5rem; text-align: center; }
-        .faith-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 30px; text-align: center; }
-
-        /* Hybrid Input Box */
-        .intent-input {
-            width: 100%; padding: 25px; border-radius: 25px;
-            background: rgba(0,255,255,0.05); border: 2px solid var(--neon-cyan);
-            color: var(--neon-cyan); font-size: 1.2rem; font-weight: 700;
-            text-shadow: 0 0 10px var(--neon-cyan); outline: none;
-            box-sizing: border-box; text-align: center; margin-bottom: 30px;
-            box-shadow: 0 0 15px rgba(0,255,255,0.2);
-            transition: 0.3s;
-        }
-        .intent-input::placeholder { color: rgba(0,255,255,0.3); text-shadow: none; }
-
-        /* Glowing Primary Button */
-        .glow-btn {
-            background: transparent; color: var(--neon-cyan); border: 3px solid var(--neon-cyan);
-            padding: 22px; width: 100%; border-radius: 20px; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
-            box-shadow: 0 0 20px var(--neon-cyan); transition: 0.3s;
-            font-size: 1.1rem; max-width: 350px;
-        }
-        .glow-btn:active { background: var(--neon-cyan); color: #000; }
-
-        /* Mic Interface */
-        .mic-container { margin-bottom: 40px; text-align: center; }
-        .mic-circle {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 3px solid var(--neon-cyan); background: rgba(0,255,255,0.05);
-            display: flex; justify-content: center; align-items: center;
-            color: var(--neon-cyan); font-size: 2.5rem; cursor: pointer;
-            box-shadow: 0 0 30px var(--neon-cyan); transition: 0.3s;
-            margin: 0 auto 15px auto;
-        }
-        .mic-circle.listening {
-            background: var(--neon-pink); border-color: var(--neon-pink);
-            color: #fff; box-shadow: 0 0 50px var(--neon-pink);
-            animation: mic-pulse 1.5s infinite;
-        }
-        @keyframes mic-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-        /* Vibe Selection Grid */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; width: 100%; max-width: 400px; }
-        .card {
-            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-            padding: 20px; border-radius: 25px; cursor: pointer; text-align: center;
-        }
-        .card.selected { background: var(--neon-cyan); color: #000; font-weight: 900; }
+        :root { --bg: #000; --text: #FFF; --accent: #888; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; }
         
-        .engine-text { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--neon-cyan); margin-top: 25px; }
+        .screen { height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 50px 20px; box-sizing: border-box; transition: transform 0.5s ease-in-out; position: absolute; }
+        
+        .hidden { transform: translateX(100%); }
+        .active { transform: translateX(0); }
+
+        /* HEADER */
+        .header { text-align: center; margin-top: 50px; }
+        .logo { font-size: 3rem; font-weight: 900; letter-spacing: 5px; margin: 0; }
+        .tagline { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; }
+
+        /* BUTTONS */
+        .btn-group { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px; }
+        .btn { height: 55px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        .btn-primary { background: #FFF; color: #000; }
+        .btn-secondary { background: transparent; color: #FFF; border: 1.5px solid #FFF; }
+
+        /* FOOTER */
+        .footer-link { color: var(--accent); font-size: 0.9rem; text-decoration: none; margin-bottom: 30px; }
+        .footer-link span { color: #FFF; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="tos-step" class="overlay">
-        <h1 class="brand-logo" style="margin-bottom:10px;">WYA</h1>
-        <p style="color: var(--neon-pink); font-weight: 800; letter-spacing: 4px; margin-bottom: 40px;">FIND THE MOVE. BE THE MOVE.</p>
-        <button class="glow-btn" onclick="nextStep('tos-step', 'vibe-step')">GET STARTED</button>
-    </div>
-
-    <div id="vibe-step" class="overlay" style="display:none;">
-        <h2 class="neon-title">SELECT VIBE</h2>
-        <div class="grid">
-            <div class="card" onclick="selectVibe(this, 'Business')"><span>💼</span><h3>BUSINESS</h3></div>
-            <div class="card" onclick="selectVibe(this, 'Clubbing')"><span>✨</span><h3>CLUBBING</h3></div>
-            <div class="card" onclick="selectVibe(this, 'Social')"><span>🍹</span><h3>SOCIAL</h3></div>
-            <div class="card" onclick="selectVibe(this, 'Romantic')"><span>🌹</span><h3>ROMANCE</h3></div>
+    <div id="landingScreen" class="screen active">
+        <div class="header">
+            <p class="logo">WYA</p>
+            <p class="tagline">Where You At?</p>
         </div>
-        <button class="glow-btn" style="margin-top: 40px;" onclick="nextStep('vibe-step', 'bio-step')">NEXT</button>
-    </div>
-
-    <div id="bio-step" class="overlay" style="display:none;">
-        <h1 style="color: var(--neon-pink); font-weight: 900; letter-spacing: 3px; font-size: 2rem; margin-bottom: 10px;">YOUR INTENT</h1>
-        <p class="faith-label">WHICH FAITH AI FREQUENCY ARE YOU BROADCASTING?</p>
-
-        <input type="text" id="intent-display" class="intent-input" placeholder="Type or Speak your intent...">
-
-        <div class="mic-container">
-            <div id="mic-trigger" class="mic-circle" onclick="toggleVoiceInput()">
-                <i class="fas fa-microphone"></i>
-            </div>
-            <p id="mic-status" style="color: var(--neon-cyan); font-weight: 800; letter-spacing: 2px; font-size: 0.8rem;">TAP TO SPEAK</p>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="showAuth()">Get Started</button>
         </div>
-
-        <button class="glow-btn" onclick="runEngine()">CALIBRATE RADAR</button>
-        <p style="color: var(--neon-cyan); font-size: 0.7rem; margin-top: 20px; font-weight: 800; letter-spacing: 2px;">LOCKED.</p>
+        <div></div>
     </div>
 
-    <div id="engine-step" class="overlay" style="display:none;">
-        <h1 class="brand-logo" style="font-size: 4rem; color: var(--neon-cyan);">WYA</h1>
-        <div style="width: 200px; height: 3px; background: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan); margin-top: 20px;"></div>
-        <p id="engine-status" class="engine-text">CALIBRATING SPATIAL DATA...</p>
+    <div id="authScreen" class="screen hidden">
+        <div class="header">
+            <p class="logo">WYA</p>
+            <p class="tagline">Join the Network</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary">Create Account</button>
+            <button class="btn btn-secondary">Sign In</button>
+        </div>
+        <a href="#" class="footer-link">Already have an account? <span>Log In</span></a>
     </div>
-
-    <div id="map"></div>
 
     <script>
-        const supabaseUrl = 'https://snecdlasdeolhjefdlum.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuZWNkbGFzZGVvbGhqZWZkbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NDU4MjQsImV4cCI6MjA5NDAyMTgyNH0.X0wQlmb5vFxXDuW4HHCQMY3tLhRfhjQ7ElifFSxAGEI'; 
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        let selectedVibe = '';
-        let isListening = false;
-
-        // Speech Engine Configuration
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let speech;
-        if (Recognition) {
-            speech = new Recognition();
-            speech.continuous = true;
-            speech.interimResults = true;
-
-            speech.onresult = (event) => {
-                let currentTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    currentTranscript += event.results[i][0].transcript;
-                }
-                document.getElementById('intent-display').value = currentTranscript;
-            };
-
-            speech.onend = () => { stopMicUI(); };
-        }
-
-        function toggleVoiceInput() {
-            if (!speech) return alert("Voice input not supported on this device.");
-            if (!isListening) {
-                speech.start();
-                startMicUI();
-            } else {
-                speech.stop();
-                stopMicUI();
-            }
-        }
-
-        function startMicUI() {
-            isListening = true;
-            document.getElementById('mic-trigger').classList.add('listening');
-            document.getElementById('mic-status').innerText = "LISTENING... (TAP TO STOP)";
-        }
-
-        function stopMicUI() {
-            isListening = false;
-            document.getElementById('mic-trigger').classList.remove('listening');
-            document.getElementById('mic-status').innerText = "TAP TO SPEAK";
-        }
-
-        function nextStep(curr, next) {
-            document.getElementById(curr).style.display = 'none';
-            document.getElementById(next).style.display = 'flex';
-        }
-
-        function selectVibe(el, v) {
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected'); selectedVibe = v;
-        }
-
-        function runEngine() {
-            if (isListening) speech.stop();
-            nextStep('bio-step', 'engine-step');
-            const status = document.getElementById('engine-status');
-            const log = ["FAITH AI ANALYZING INTENT...", "ESTABLISHING FREQUENCY...", "LOCKED."];
-            let i = 0;
-            const interval = setInterval(() => {
-                status.innerText = log[i]; i++;
-                if (i === log.length) { clearInterval(interval); setTimeout(() => finalizeRadar(), 800); }
-            }, 800);
-        }
-
-        async function finalizeRadar() {
-            const finalIntent = document.getElementById('intent-display').value;
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (user) { await _supabase.from('profiles').upsert({ id: user.id, current_vibe: selectedVibe, bio: finalIntent }); }
-            document.getElementById('engine-step').style.display = 'none';
-            initMap();
-        }
-
-        function initMap() {
-            mapboxgl.accessToken = 'pk.eyJ1Ijoid3lhLWxpdmUiLCJhIjoiY21wMGZ3MGdxMTdoMDRqb3BwbGVscTRmYiJ9.kuZWQ6cwqaoj5Ziw8lm1Kw';
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const userLoc = [pos.coords.longitude, pos.coords.latitude];
-                const map = new mapboxgl.Map({ container: 'map', style: 'mapbox://styles/mapbox/dark-v11', center: userLoc, zoom: 17, pitch: 60 });
-                const el = document.createElement('div');
-                el.style.width='28px'; el.style.height='28px'; el.style.background='#fff'; 
-                el.style.border='4px solid var(--neon-cyan)'; el.style.borderRadius='50%';
-                el.style.boxShadow='0 0 30px var(--neon-cyan)';
-                new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
-            }, null, { enableHighAccuracy: true });
+        function showAuth() {
+            document.getElementById('landingScreen').classList.add('hidden');
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('authScreen').classList.add('active');
         }
     </script>
 </body>
