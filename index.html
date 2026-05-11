@@ -11,16 +11,19 @@
     
     <style>
         :root { 
-            --neon-cyan: #00ffff; 
-            --neon-pink: #ff00ff; 
-            --glass: rgba(255, 255, 255, 0.1);
-            --bg: #000;
+            --neon-cyan: #00ffff; --neon-pink: #ff00ff; 
+            --glass: rgba(0, 0, 0, 0.8); --bg: #000;
         }
 
-        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Inter', sans-serif; color: #fff; overflow: hidden; }
+        /* Prevent standard scrolling completely */
+        html, body { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            overflow: hidden; position: fixed; background: var(--bg); 
+            font-family: 'Inter', sans-serif; 
+        }
+
         #map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 1; }
 
-        /* Full-Screen UI Overlays */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); backdrop-filter: blur(25px);
@@ -28,39 +31,34 @@
         }
 
         .glass-card {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 35px; padding: 30px; text-align: center; width: 85%; max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
 
-        .neon-text { text-transform: uppercase; letter-spacing: 3px; font-weight: 900; text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 10px; }
+        .neon-text { text-transform: uppercase; letter-spacing: 3px; font-weight: 900; text-shadow: 0 0 15px var(--neon-cyan); }
         
         .auth-input {
             width: 100%; padding: 18px; margin-bottom: 15px; border-radius: 15px;
-            background: #111; border: 1px solid #333; color: #fff; font-size: 1rem; box-sizing: border-box;
+            background: #111; border: 1px solid #333; color: #fff; font-size: 1rem;
         }
 
         .primary-btn {
             background: var(--neon-cyan); color: #000; border: none; padding: 20px;
-            width: 100%; border-radius: 50px; font-weight: 900; font-size: 1.1rem;
-            text-transform: uppercase; cursor: pointer; box-shadow: 0 0 20px var(--neon-cyan);
-            transition: 0.2s;
+            width: 100%; border-radius: 50px; font-weight: 900; text-transform: uppercase; 
+            box-shadow: 0 0 20px var(--neon-cyan); cursor: pointer;
         }
 
-        /* The Grid UI for Categorization */
+        /* Category Grid */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .card {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px; border-radius: 25px; cursor: pointer; transition: 0.3s;
+            padding: 20px; border-radius: 25px; text-align: center;
         }
-        .card span { display: block; font-size: 1.5rem; margin-bottom: 5px; }
-        .card h3 { margin: 0; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; }
 
-        /* Pulsing Radar Node */
+        /* Radar Node */
         .user-dot {
             width: 24px; height: 24px; background: #fff; border: 4px solid var(--neon-cyan);
-            border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px var(--neon-cyan);
-            position: relative;
+            border-radius: 50%; box-shadow: 0 0 20px var(--neon-cyan); position: relative;
         }
         .user-dot::after {
             content: ''; position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
@@ -72,70 +70,34 @@
             100% { transform: scale(3.0); opacity: 0; }
         }
 
-        /* Pink Target Dots */
-        .target-dot {
-            width: 18px; height: 18px; background: var(--neon-pink); 
-            border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 15px var(--neon-pink);
-            cursor: pointer;
-        }
+        .target-dot { width: 18px; height: 18px; background: var(--neon-pink); border: 3px solid #fff; border-radius: 50%; }
 
+        /* THE FIX: Profile Card Slide-up */
         #profile-card {
-            position: absolute; bottom: -400px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 350px; background: rgba(0,0,0,0.98); backdrop-filter: blur(30px);
-            border: 2px solid var(--neon-cyan); border-radius: 30px; padding: 30px;
-            z-index: 5000; transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
+            position: fixed; bottom: -500px; left: 0; right: 0;
+            background: var(--glass); backdrop-filter: blur(30px);
+            border-top: 2px solid var(--neon-cyan); border-radius: 30px 30px 0 0;
+            padding: 30px; z-index: 20000; text-align: center;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        #profile-card.active { bottom: 35px; }
-
-        .toggle-link { margin-top: 25px; display: block; color: var(--neon-cyan); font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        #profile-card.active { bottom: 0; }
     </style>
 </head>
 <body>
 
-    <div id="tos-step" class="overlay">
-        <div class="glass-card">
-            <h1 class="neon-text" style="text-shadow: 0 0 15px var(--neon-pink);">WYA AGREEMENT</h1>
-            <p style="color: #888; font-size: 0.8rem;">High-Accuracy Tracking Active. Please allow GPS access.</p>
-            <button class="primary-btn" style="background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink);" onclick="nextStep('tos-step', 'auth-step')">I CONSENT</button>
-        </div>
-    </div>
+    <div id="tos-step" class="overlay"><div class="glass-card"><h1 class="neon-text">WYA</h1><p>0.8s Intent Tracking.</p><button class="primary-btn" onclick="nextStep('tos-step', 'auth-step')">CONSENT</button></div></div>
 
-    <div id="auth-step" class="overlay" style="display:none;">
-        <div class="glass-card">
-            <h2 id="auth-title" class="neon-text">WYA ACCESS</h2>
-            <input type="email" id="email" placeholder="Email" class="auth-input">
-            <input type="password" id="password" placeholder="Password" class="auth-input">
-            <button id="auth-btn" class="primary-btn" onclick="handleSignup()">CREATE ACCOUNT</button>
-            <span class="toggle-link" id="auth-toggle-text" onclick="toggleAuthMode()">ALREADY A MEMBER? SIGN IN</span>
-        </div>
-    </div>
+    <div id="auth-step" class="overlay" style="display:none;"><div class="glass-card"><h2 class="neon-text">ACCESS</h2><input type="email" id="email" placeholder="Email" class="auth-input"><input type="password" id="password" placeholder="Password" class="auth-input"><button class="primary-btn" onclick="handleSignup()">ENTER</button></div></div>
 
-    <div id="vibe-step" class="overlay" style="display:none;">
-        <div class="glass-card">
-            <h2 class="neon-text">WHAT'S THE MOVE?</h2>
-            <div class="grid">
-                <div class="card" onclick="setVibe('The Move')"><span>🔥</span><h3>THE MOVE</h3></div>
-                <div class="card" onclick="setVibe('Business/Faith')"><span>💼</span><h3>BUSINESS/FAITH</h3></div>
-                <div class="card" onclick="setVibe('Flash Burns')"><span>🍕</span><h3>FLASH BURNS</h3></div>
-                <div class="card" onclick="setVibe('Discovery')"><span>🎲</span><h3>SURPRISE ME</h3></div>
-            </div>
-        </div>
-    </div>
+    <div id="vibe-step" class="overlay" style="display:none;"><div class="glass-card"><h2 class="neon-text">VIBE</h2><div class="grid"><div class="card" onclick="setVibe('Business/Faith')">💼<h3>BUSINESS</h3></div><div class="card" onclick="setVibe('The Move')">🔥<h3>THE MOVE</h3></div></div></div></div>
 
-    <div id="bio-step" class="overlay" style="display:none;">
-        <div class="glass-card">
-            <h2 class="neon-text">YOUR BIO</h2>
-            <textarea id="bio" placeholder="What are you looking for?" class="auth-input" style="height: 120px;"></textarea>
-            <button class="primary-btn" onclick="finalizeProfile()">LAUNCH RADAR</button>
-        </div>
-    </div>
+    <div id="bio-step" class="overlay" style="display:none;"><div class="glass-card"><h2 class="neon-text">BIO</h2><textarea id="bio" placeholder="What's the move?" class="auth-input" style="height:100px;"></textarea><button class="primary-btn" onclick="finalizeProfile()">LAUNCH</button></div></div>
 
     <div id="profile-card">
-        <div style="color: var(--neon-pink); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px;">MEMBER PROFILE</div>
-        <h2 id="card-name" style="margin: 5px 0;">Alpha Founder</h2>
-        <p id="card-bio" style="color: #ccc; font-size: 1rem; line-height: 1.4;"></p>
-        <button class="primary-btn" style="margin-top: 20px; padding: 12px; background: #fff; color: #000;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
+        <div style="color: var(--neon-pink); font-weight: 900; font-size: 0.8rem; margin-bottom: 10px;">NODE DATA</div>
+        <h2 id="card-name">Alpha Founder</h2>
+        <p id="card-bio" style="color: #ccc;"></p>
+        <button class="primary-btn" style="background:#fff; margin-top:20px;" onclick="document.getElementById('profile-card').classList.remove('active')">CLOSE</button>
     </div>
 
     <div id="map"></div>
@@ -146,64 +108,39 @@
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         let selectedVibe = '';
-        let isLoginMode = false;
 
         function nextStep(current, next) {
             document.getElementById(current).style.display = 'none';
             document.getElementById(next).style.display = 'flex';
         }
 
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "WELCOME BACK" : "WYA ACCESS";
-            document.getElementById('auth-btn').innerText = isLoginMode ? "SIGN IN" : "CREATE ACCOUNT";
-            document.getElementById('auth-btn').onclick = isLoginMode ? handleLogin : handleSignup;
-            document.getElementById('auth-toggle-text').innerText = isLoginMode ? "NEW HERE? CREATE ACCOUNT" : "ALREADY A MEMBER? SIGN IN";
-        }
-
         async function handleSignup() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const { error } = await _supabase.auth.signUp({ email, password });
-            if (error) handleLogin(); else nextStep('auth-step', 'vibe-step');
+            await _supabase.auth.signUp({ email, password });
+            await _supabase.auth.signInWithPassword({ email, password });
+            nextStep('auth-step', 'vibe-step');
         }
 
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message); else nextStep('auth-step', 'vibe-step');
-        }
-
-        function setVibe(vibe) {
-            selectedVibe = vibe;
-            nextStep('vibe-step', 'bio-step');
-        }
+        function setVibe(vibe) { selectedVibe = vibe; nextStep('vibe-step', 'bio-step'); }
 
         async function finalizeProfile() {
             const bioText = document.getElementById('bio').value;
             const { data: { user } } = await _supabase.auth.getUser();
-            if (user) {
-                await _supabase.from('profiles').upsert({ id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText });
-            }
+            if (user) { await _supabase.from('profiles').upsert({ id: user.id, email: user.email, current_vibe: selectedVibe, bio: bioText }); }
             document.getElementById('bio-step').style.display = 'none';
-            initLiveRadar(bioText);
+            initRadar(bioText);
         }
 
-        function initLiveRadar(bio) {
+        function initRadar(bio) {
             mapboxgl.accessToken = 'pk.eyJ1Ijoid3lhLWxpdmUiLCJhIjoiY21wMGZ3MGdxMTdoMDRqb3BwbGVscTRmYiJ9.kuZWQ6cwqaoj5Ziw8lm1Kw';
-            
-            // Forcing High Accuracy for Boardman Demo
             navigator.geolocation.getCurrentPosition((pos) => {
                 const userLoc = [pos.coords.longitude, pos.coords.latitude];
-                
                 const map = new mapboxgl.Map({
-                    container: 'map',
-                    style: 'mapbox://styles/mapbox/dark-v11',
+                    container: 'map', style: 'mapbox://styles/mapbox/dark-v11',
                     center: userLoc, zoom: 17, pitch: 60
                 });
 
-                // 1. Create Pulsing Node (You)
                 const el = document.createElement('div');
                 el.className = 'user-dot';
                 el.onclick = () => {
@@ -213,35 +150,20 @@
                 };
                 new mapboxgl.Marker(el).setLngLat(userLoc).addTo(map);
 
-                // 2. Create Demo Neighbors (Targets)
-                addDemoNode(map, userLoc[0] + 0.0005, userLoc[1] + 0.0004, "Vibe Tech", "Looking for new networking tech.");
-                addDemoNode(map, userLoc[0] - 0.0006, userLoc[1] - 0.0003, "Local Partner", "Available for B2B discussion.");
+                // Demo Node
+                addNode(map, userLoc[0] + 0.0005, userLoc[1] + 0.0004, "Test User", "Demoing WYA.");
 
-            }, () => { 
-                alert("GPS error. Using default view.");
-                // Fallback if GPS fails
-                initMapFallback(bio);
-            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            }, () => { alert("Enable GPS!"); }, { enableHighAccuracy: true });
         }
 
-        function addDemoNode(map, lng, lat, title, demoBio) {
-            const el = document.createElement('div');
-            el.className = 'target-dot';
+        function addNode(map, lng, lat, title, b) {
+            const el = document.createElement('div'); el.className = 'target-dot';
             el.onclick = () => {
                 document.getElementById('card-name').innerText = title;
-                document.getElementById('card-bio').innerText = demoBio;
+                document.getElementById('card-bio').innerText = b;
                 document.getElementById('profile-card').classList.add('active');
             };
             new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
-        }
-
-        function initMapFallback(bio) {
-            // Default to Boardman center if GPS fails
-            const map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/dark-v11',
-                center: [-80.6628, 41.0245], zoom: 16
-            });
         }
     </script>
 </body>
