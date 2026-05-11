@@ -6,43 +6,133 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-DQF0GRW2WG', { 'debug_mode': true });
+      gtag('config', 'G-DQF0GRW2WG');
     </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA V3.3.2 - THE OBSERVER</title>
+    <title>WYA V3.4.0 - PERSISTENCE</title>
     <style>
-        :root { --bg: #000; --neon-pink: #ff00ff; --glow-pink: 0 0 15px var(--neon-pink); }
-        body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, sans-serif; overflow: hidden; height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; letter-spacing: 2px; }
-        .logo { font-size: 4rem; color: var(--neon-pink); text-shadow: var(--glow-pink); letter-spacing: 12px; font-weight: 900; }
-        .btn-primary { height: 60px; border-radius: 16px; font-size: 1rem; font-weight: 900; border: 2px solid var(--neon-pink); background: transparent; color: var(--neon-pink); width: 80%; max-width: 320px; box-shadow: 0 0 20px var(--neon-pink); cursor: pointer; margin-top: 30px; text-transform: uppercase; }
-        .screen { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        :root { 
+            --bg: #000; 
+            --neon-pink: #ff00ff; 
+            --glow-pink: 0 0 15px var(--neon-pink); 
+            --btn-glow: 0 0 25px var(--neon-pink);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: #FFF; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
+        
+        #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.6rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; opacity: 0.7; }
+
+        .screen { 
+            display: none; 
+            height: 100vh; width: 100vw; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            padding: 40px 20px; 
+            position: absolute; top: 0; left: 0;
+        }
         .active { display: flex; }
+
+        .logo { font-size: 4.5rem; color: var(--neon-pink); text-shadow: var(--glow-pink); letter-spacing: 12px; font-weight: 900; margin: 0; }
+        
+        .btn-primary { 
+            height: 65px; border-radius: 18px; 
+            font-size: 1.1rem; font-weight: 900; 
+            border: 2px solid var(--neon-pink); 
+            background: transparent; color: var(--neon-pink); 
+            width: 100%; max-width: 320px; 
+            box-shadow: var(--btn-glow); 
+            margin-top: 30px; cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .auth-container { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .btn-auth { 
+            height: 50px; border-radius: 12px; border: 1px solid #333; 
+            background: #111; color: #FFF; font-weight: 700; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        .radar-status { color: #00ff41; font-weight: 900; letter-spacing: 2px; font-size: 0.7rem; margin-bottom: 20px; text-shadow: 0 0 10px #00ff41; }
+        .reset-link { margin-top: 40px; color: #444; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
     </style>
 </head>
-<body>
-    <div id="versionTag">FAITH_OS_V3.3.2</div>
+<body onload="startupCheck()">
+    <div id="versionTag">FAITH_OS_V3.4.0</div>
 
     <div id="screen_splash" class="screen active">
         <h1 class="logo">WYA</h1>
-        <button class="btn-primary" onclick="navTo('screen_radar')">Initialize OS</button>
+        <button class="btn-primary" onclick="navTo('screen_auth')">Initialize OS</button>
+    </div>
+
+    <div id="screen_auth" class="screen">
+        <h2 style="letter-spacing: 5px; font-size: 0.9rem; color: var(--neon-pink);">IDENTITY BRIDGE</h2>
+        <div class="auth-container">
+            <div class="btn-auth" onclick="finalizeAuth('APPLE')">CONTINUE WITH APPLE</div>
+            <div class="btn-auth" onclick="finalizeAuth('INSTAGRAM')">CONTINUE WITH INSTAGRAM</div>
+            <div class="btn-auth" onclick="finalizeAuth('X')">CONTINUE WITH X</div>
+        </div>
     </div>
 
     <div id="screen_radar" class="screen">
-        <h2 style="color: var(--neon-pink)">RADAR ACTIVE</h2>
-        <p>Intelligence Stream: G-DQF0GRW2WG</p>
-        <button class="btn-primary" onclick="location.reload()">Reset Session</button>
+        <div class="radar-status">● SYSTEM LIVE</div>
+        <h2 id="userDisplay" style="font-size: 1.5rem; margin-bottom: 5px;">ARCHITECT</h2>
+        <p style="color: #666; font-size: 0.8rem;">Intelligence ID: G-DQF0GRW2WG</p>
+        
+        <div id="locationData" style="font-size: 0.7rem; color: var(--neon-pink); margin-top: 20px; font-family: monospace;">
+            Awaiting GPS handshake...
+        </div>
+
+        <div class="reset-link" onclick="hardReset()">Deactivate Session</div>
     </div>
 
     <script>
+        function startupCheck() {
+            // Memory Check: Did the user already sign in?
+            const sessionActive = localStorage.getItem('wya_active');
+            if(sessionActive === 'true') {
+                navTo('screen_radar');
+                requestGPS();
+            }
+        }
+
         function navTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            
+            // Log screen change to Google Analytics
             if(typeof gtag === 'function') {
                 gtag('event', 'screen_view', { 'screen_name': id });
             }
+        }
+
+        function finalizeAuth(provider) {
+            localStorage.setItem('wya_active', 'true');
+            localStorage.setItem('wya_provider', provider);
+            navTo('screen_radar');
+            requestGPS();
+        }
+
+        function requestGPS() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.watchPosition((position) => {
+                    const lat = position.coords.latitude.toFixed(4);
+                    const lon = position.coords.longitude.toFixed(4);
+                    document.getElementById('locationData').innerText = `LAT: ${lat} | LON: ${lon}`;
+                    
+                    // Track that GPS is working
+                    if(typeof gtag === 'function') {
+                        gtag('event', 'gps_sync', { 'lat': lat, 'lon': lon });
+                    }
+                }, (err) => {
+                    document.getElementById('locationData').innerText = "GPS HANDSHAKE DENIED";
+                });
+            }
+        }
+
+        function hardReset() {
+            localStorage.clear();
+            location.reload();
         }
     </script>
 </body>
