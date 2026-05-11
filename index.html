@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WYA V1.9.1</title>
+    <title>WYA V2.0.1</title>
     <style>
         :root { 
             --bg: #000; 
@@ -18,99 +18,79 @@
         
         #versionTag { position: fixed; top: 15px; right: 20px; font-size: 0.7rem; color: var(--neon-pink); font-weight: 900; z-index: 1000; letter-spacing: 2px; text-shadow: var(--glow-pink); }
 
-        .screen { height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: absolute; top: 0; left: 0; background: transparent; z-index: 10; }
-        .hidden { transform: translateY(30px); opacity: 0; pointer-events: none; z-index: 0; }
-        .active { transform: translateY(0); opacity: 1; pointer-events: all; z-index: 10; }
+        .screen { height: 100%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 20px; transition: 0.4s; position: absolute; top: 0; left: 0; background: transparent; z-index: 10; }
+        .hidden { transform: translateY(30px); opacity: 0; pointer-events: none; }
+        .active { transform: translateY(0); opacity: 1; pointer-events: all; }
         
-        .header { text-align: center; margin-top: 20px; z-index: 20; }
-        .logo { font-size: 3.5rem; font-weight: 900; letter-spacing: 8px; margin: 0; color: var(--neon-pink); text-shadow: var(--glow-pink); }
-        .tagline { color: var(--neon-pink); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 4px; font-weight: 800; text-shadow: var(--glow-pink); }
-        
-        /* Sidebar */
         #sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100%; background: var(--sidebar-bg); border-right: 2px solid var(--neon-pink); transform: translateX(-100%); transition: 0.4s; z-index: 100; padding: 80px 20px; }
         #sidebar.open { transform: translateX(0); }
         #sidebarOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 90; display: none; }
         #sidebarOverlay.visible { display: block; }
         .sidebar-toggle { position: fixed; left: 20px; top: 15px; z-index: 110; font-size: 1.8rem; color: var(--neon-pink); cursor: pointer; background: none; border: none; }
 
-        /* Identity Bridge List */
-        .bridge-list { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .bridge-item { width: 100%; height: 70px; background: #111; border: 1px solid #333; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; transition: 0.3s; cursor: pointer; }
-        .bridge-item.linked { border-color: var(--connected); box-shadow: 0 0 10px rgba(0, 255, 65, 0.2); }
-        .bridge-name { font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .bridge-status { font-size: 0.7rem; font-weight: 900; padding: 4px 8px; border-radius: 5px; background: #222; color: #666; }
-        .linked .bridge-status { background: var(--connected); color: #000; }
+        #profileModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9); width: 90%; max-width: 350px; background: rgba(10,10,10,0.95); border: 2px solid var(--neon-pink); border-radius: 20px; padding: 30px; z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: var(--glow-pink); }
+        #profileModal.show { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+        .truth-meter { width: 100%; height: 6px; background: #222; border-radius: 3px; margin: 15px 0; overflow: hidden; }
+        .truth-fill { height: 100%; background: var(--connected); box-shadow: 0 0 10px var(--connected); transition: width 1s; }
 
-        /* Radar UI */
         .radar-container { position: relative; width: 340px; height: 340px; display: flex; justify-content: center; align-items: center; }
-        .radar-circle { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(255, 0, 255, 0.2); border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%); }
+        .radar-circle { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(255, 0, 255, 0.1); border-radius: 50%; }
         .radar-pulse { position: absolute; width: 100%; height: 100%; border: 2px solid var(--neon-pink); border-radius: 50%; animation: pulse 4s infinite linear; opacity: 0; }
         .radar-center { width: 12px; height: 12px; background: #FFF; border-radius: 50%; box-shadow: 0 0 20px #FFF; }
-        .user-node { position: absolute; width: 16px; height: 16px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); animation: fadeIn 0.5s forwards; }
+        .user-node { position: absolute; width: 18px; height: 18px; background: var(--neon-pink); border-radius: 50%; box-shadow: var(--glow-pink); cursor: pointer; }
 
-        /* Buttons */
-        .btn-group { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; z-index: 20; }
-        .btn { height: 60px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; border: none; display: flex; align-items: center; justify-content: center; }
-        .btn-pink { background: transparent; color: var(--neon-pink); border: 2px solid var(--neon-pink); box-shadow: var(--btn-glow-pink); }
+        .btn { height: 60px; border-radius: 12px; font-size: 1.1rem; font-weight: 900; cursor: pointer; text-transform: uppercase; border: 2px solid var(--neon-pink); background: transparent; color: var(--neon-pink); width: 100%; }
         
-        .map-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(255, 0, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 255, 0.05) 1px, transparent 1px); background-size: 50px 50px; opacity: 0; transition: 1s ease; }
-        .map-layer.visible { opacity: 1; }
-
         @keyframes pulse { 0% { transform: scale(0); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body onload="checkAuth()">
-    <div id="versionTag">V1.9.1</div>
+    <div id="versionTag">V2.0.1</div>
     <div id="sidebarOverlay" onclick="toggleSidebar()"></div>
     
     <div id="sidebar">
-        <h2 style="color: var(--neon-pink); text-transform: uppercase; letter-spacing: 2px;">System Menu</h2>
-        <div class="btn-group">
-            <button class="btn btn-pink" style="height: 45px; font-size: 0.8rem;" onclick="navigate('bridgeScreen'); toggleSidebar();">Identity Bridge</button>
-            <button class="btn btn-pink" style="height: 45px; font-size: 0.8rem; border-color: #444; color: #888;" onclick="logout()">Deactivate</button>
-        </div>
+        <h2 style="color: var(--neon-pink); text-transform: uppercase; letter-spacing: 2px;">FAITH OS</h2>
+        <button class="btn" style="height: 45px; font-size: 0.8rem; margin-bottom:10px;" onclick="navigate('bridgeScreen'); toggleSidebar();">Identity Bridge</button>
+        <button class="btn" style="height: 45px; font-size: 0.8rem; border-color: #444; color: #888;" onclick="logout()">Deactivate</button>
     </div>
     <button id="menuBtn" class="sidebar-toggle" style="display:none;" onclick="toggleSidebar()">☰</button>
 
-    <div id="globalMapLayer" class="map-layer"></div>
+    <div id="profileModal">
+        <div style="text-align: center;">
+            <h3 id="modalName" style="margin: 0; color: var(--neon-pink); letter-spacing: 2px;">USER_ID</h3>
+            <p id="modalTag" style="font-size: 0.8rem; color: #888; margin: 5px 0;">NEURAL AUDIT ACTIVE</p>
+            <div class="truth-meter"><div id="truthFill" class="truth-fill" style="width: 0%;"></div></div>
+            <p style="font-size: 0.7rem; font-weight: 900; color: var(--connected);">TRUTH SCORE: <span id="truthScore">0</span>%</p>
+            <button class="btn" style="margin-top: 20px; height: 45px; font-size: 0.8rem;" onclick="closeProfile()">Send Ping</button>
+        </div>
+    </div>
 
     <div id="landingScreen" class="screen active">
-        <div class="header"><h1 class="logo">WYA</h1><p class="tagline">Real-Time Social Radar</p></div>
-        <div class="btn-group"><button class="btn btn-pink" onclick="simulateLogin()">Initialize Radar</button></div>
+        <h1 style="font-size: 3.5rem; color: var(--neon-pink); text-shadow: var(--glow-pink);">WYA</h1>
+        <button class="btn" onclick="simulateLogin()">Initialize Radar</button>
     </div>
 
     <div id="mapScreen" class="screen hidden">
-        <div class="header"><h1 class="logo" style="font-size: 2rem;">RADAR</h1></div>
         <div class="radar-container" id="radarField">
             <div class="radar-circle"></div><div class="radar-pulse"></div><div class="radar-center"></div>
         </div>
-        <div class="btn-group"><button class="btn btn-pink" onclick="toggleSidebar()">Open Menu</button></div>
+        <button class="btn" onclick="toggleSidebar()">System Menu</button>
     </div>
 
     <div id="bridgeScreen" class="screen hidden">
-        <div class="header"><h1 class="logo" style="font-size: 2rem;">BRIDGE</h1><p class="tagline">Neural Linking</p></div>
-        <div class="bridge-list">
-            <div class="bridge-item" id="link-spotify" onclick="linkPlatform('spotify')">
-                <span class="bridge-name">Spotify</span><span class="bridge-status" id="status-spotify">DISCONNECTED</span>
-            </div>
-            <div class="bridge-item" id="link-steam" onclick="linkPlatform('steam')">
-                <span class="bridge-name">Steam</span><span class="bridge-status" id="status-steam">DISCONNECTED</span>
-            </div>
-            <div class="bridge-item" id="link-insta" onclick="linkPlatform('insta')">
-                <span class="bridge-name">Instagram</span><span class="bridge-status" id="status-insta">DISCONNECTED</span>
-            </div>
-            <div class="bridge-item" id="link-x" onclick="linkPlatform('x')">
-                <span class="bridge-name">X (Twitter)</span><span class="bridge-status" id="status-x">DISCONNECTED</span>
-            </div>
-        </div>
-        <div class="btn-group"><button class="btn btn-pink" onclick="navigate('mapScreen')">Back to Radar</button></div>
+        <h1 style="color: var(--neon-pink);">BRIDGE</h1>
+        <button class="btn" onclick="navigate('mapScreen')">Return</button>
     </div>
 
     <script>
+        const mockUsers = [
+            { name: "Alpha_01", tag: "Tech Architect", score: 94 },
+            { name: "Neon_Ghost", tag: "Competitive Gamer", score: 88 },
+            { name: "Logic_Core", tag: "First Principles", score: 98 }
+        ];
+
         function checkAuth() {
             if (localStorage.getItem('FAITH_AUTH_TOKEN')) navigate('mapScreen');
-            updateBridgeUI();
         }
 
         function simulateLogin() {
@@ -131,55 +111,35 @@
         function navigate(id) {
             document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.classList.add('hidden'); });
             document.getElementById(id).classList.add('active');
-            const menuBtn = document.getElementById('menuBtn');
-            const mapLayer = document.getElementById('globalMapLayer');
-            
-            if(id === 'mapScreen') {
-                mapLayer.classList.add('visible');
-                menuBtn.style.display = 'block';
-                renderNodes();
-            } else {
-                mapLayer.classList.remove('visible');
-                menuBtn.style.display = (id === 'bridgeScreen') ? 'block' : 'none';
-            }
-        }
-
-        function linkPlatform(platform) {
-            const isLinked = localStorage.getItem(`link_${platform}`);
-            if (isLinked) {
-                localStorage.removeItem(`link_${platform}`);
-            } else {
-                localStorage.setItem(`link_${platform}`, 'true');
-            }
-            updateBridgeUI();
-        }
-
-        function updateBridgeUI() {
-            ['spotify', 'steam', 'insta', 'x'].forEach(p => {
-                const item = document.getElementById(`link-${p}`);
-                const status = document.getElementById(`status-${p}`);
-                if (item && localStorage.getItem(`link_${p}`)) {
-                    item.classList.add('linked');
-                    status.innerText = 'LINKED';
-                } else if (item) {
-                    item.classList.remove('linked');
-                    status.innerText = 'DISCONNECTED';
-                }
-            });
+            document.getElementById('menuBtn').style.display = (id === 'mapScreen' || id === 'bridgeScreen') ? 'block' : 'none';
+            if(id === 'mapScreen') renderNodes();
         }
 
         function renderNodes() {
             const field = document.getElementById('radarField');
             document.querySelectorAll('.user-node').forEach(n => n.remove());
-            for(let i=0; i<3; i++) {
+            mockUsers.forEach((user, i) => {
                 const node = document.createElement('div');
                 node.className = 'user-node';
-                const radius = 80 + (Math.random() * 60);
-                const angle = Math.random() * Math.PI * 2;
-                node.style.left = (170 + radius * Math.cos(angle) - 8) + 'px';
-                node.style.top = (170 + radius * Math.sin(angle) - 8) + 'px';
+                const angle = (i * 120) * Math.PI / 180;
+                node.style.left = (170 + 100 * Math.cos(angle) - 9) + 'px';
+                node.style.top = (170 + 100 * Math.sin(angle) - 9) + 'px';
+                node.onclick = () => showProfile(user);
                 field.appendChild(node);
-            }
+            });
+        }
+
+        function showProfile(user) {
+            document.getElementById('modalName').innerText = user.name;
+            document.getElementById('modalTag').innerText = user.tag;
+            document.getElementById('truthScore').innerText = user.score;
+            document.getElementById('profileModal').classList.add('show');
+            setTimeout(() => { document.getElementById('truthFill').style.width = user.score + '%'; }, 100);
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('show');
+            document.getElementById('truthFill').style.width = '0%';
         }
     </script>
 </body>
